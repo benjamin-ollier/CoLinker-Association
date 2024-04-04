@@ -1,0 +1,30 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Node backend",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "program": "${workspaceFolder}/backend/index.js",
+      "env":{
+        "SECRET_KEY": "totosecretkey",
+        "DB_USER":"monUtilisateur",
+        "DB_PASS":"monMotDePasse",
+        "DB_NAME":"maBaseDeDonnees",
+        "DB_HOST":"localhost",
+        "DB_PORT":"27017",
+        "BackendPORT":"8000"
+      }
+    },
+    {
+      "type": "node-terminal",
+      "name": "Exécuter le script : start",
+      "request": "launch",
+      "command": "npm run start",
+      "cwd": "${workspaceFolder}/colinker"
+    }
+  ]
+}
