@@ -17,7 +17,7 @@ const SideMenu = ({isAdminMode}) => {
     { label: "Home", key: "/Home" },
     { label: "Mes Associations", key: "/MyAssociation" },
     { label: "Vote", key: "/Votes" },
-    { label: "Assemblée Générale", key: "/Assemblée Générale" },
+    { label: "Assemblée Générale", key: "/ag" },
 
   ];
 

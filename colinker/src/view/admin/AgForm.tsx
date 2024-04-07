@@ -1,72 +1,105 @@
-import React from 'react';
-import { Input, Select, DatePicker, Button } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { Form, Input, Select, DatePicker, Button } from 'antd';
 import { PlusOutlined, MinusCircleOutlined } from '@ant-design/icons';
+import { useParams } from 'react-router-dom';
+import { getAGById, createAG, updateAG } from '../../service/agService';
+import moment from 'moment';
+import { useNavigate } from 'react-router-dom';
 
 const { Option } = Select;
 
 const AgForm: React.FC = () => {
+  const navigate = useNavigate();
+  const { id } = useParams();
+  const isNew = id === 'new';
+  const [form] = Form.useForm();
+
+  useEffect(() => {
+    if (!isNew) {
+      fetchAgDetails();
+    }
+  }, [id]);
+    
+  const fetchAgDetails = async () => {
+    try {
+      const data = await getAGById(`${id}`);
+      form.setFieldsValue({
+        title: data.title,
+        description: data.description,
+        type: data.type,
+        dateStart: moment(data.dateStart),
+        dateEnd: moment(data.dateEnd),
+        location: data.location,
+        detailAgenda: data.detailAgenda.join('\n'),      
+      });
+    } catch (error) {
+      console.error("Erreur lors de la récupération des détails de l'AG:", error);
+    }
+  };
+
+  const handleSaveData = async (values) => {
+    const dataToSubmit = {
+      ...values,
+      dateStart: values.dateStart ? values.dateStart.toISOString() : null,
+      dateEnd: values.dateEnd ? values.dateEnd.toISOString() : null,
+    };
+    
+    if (isNew) {
+      const res=await createAG(dataToSubmit);
+      if(res.status == '200' || res.status == '201') {
+        navigate(`/admin/ag`);
+      }
+    } else {
+      await updateAG(dataToSubmit, id || '');
+      const res=await createAG(dataToSubmit);
+      if(res.status == '200' || res.status == '201') {
+        navigate(`/admin/ag`);
+      }
+    }
+  };
+
   return (
-    <div className="p-10">
-      <h1 className="mb-6">Nouvelle Assemblée Générale</h1>
+
+    <Form form={form} layout="vertical" onFinish={handleSaveData} className="p-10">
+      <h1 className="mb-6">Assemblée Générale</h1>
       
-      <div className="mb-4">
-        <label className="block">Titre</label>
+      <Form.Item name="title" label="Titre" className="mb-4">
         <Input placeholder="Titre" />
-      </div>
+      </Form.Item>
 
-      <div className="mb-4">
-        <label className="block">Descriptif</label>
+      <Form.Item name="description" label="Descriptif" className="mb-4">
         <Input.TextArea rows={4} placeholder="Descriptif" />
-      </div>
+      </Form.Item>
 
-      <div className="mb-4">
-        <label className="block">Type</label>
-        <Select defaultValue="Ordinaire" style={{ width: '100%' }}>
+      <Form.Item name="type" label="Type" className="mb-4">
+        <Select placeholder="Sélectionnez un type">
           <Option value="Ordinaire">Ordinaire</Option>
           <Option value="Extraordinaire">Extraordinaire</Option>
-          <Option value="Spéciale">Spéciale</Option>
         </Select>
-      </div>
+      </Form.Item>
 
-      <div className="mb-4">
-        <label className="block">Date d'ouverture</label>
-        <DatePicker style={{ width: '100%' }} />
-      </div>
+      <Form.Item name="dateStart" label="Date et heure d'ouverture" className="mb-4">
+        <DatePicker showTime format="YYYY-MM-DD HH:mm:ss" style={{ width: '100%' }} />
+      </Form.Item>
 
-      <div className="mb-4">
-        <label className="block">Date de fermeture</label>
-        <DatePicker style={{ width: '100%' }} />
-      </div>
+      <Form.Item name="dateEnd" label="Date et heure de fermeture" className="mb-4">
+        <DatePicker showTime format="YYYY-MM-DD HH:mm:ss" style={{ width: '100%' }} />
+      </Form.Item>
 
-      <div className="mb-4">
-        <label className="block">Lieu</label>
+      <Form.Item name="location" label="Lieu" className="mb-4">
         <Input placeholder="Lieu" />
-      </div>
+      </Form.Item>
 
-      <div className="mb-4">
-        <label className="block">Ordre du jour</label>
+      <Form.Item name="detailAgenda" label="Ordre du jour" className="mb-4">
         <Input.TextArea rows={4} placeholder="Ordre du jour" />
-      </div>
+      </Form.Item>
 
-      <div className="mb-4">
-        <label className="block">Votes</label>
-        <Select mode="tags" style={{ width: '100%' }} placeholder="Choix des votes">
-          <Option value="Pour">Pour</Option>
-          <Option value="Contre">Contre</Option>
-          <Option value="Abstention">Abstention</Option>
-        </Select>
-      </div>
-
-      <div className="mb-4">
-        <label className="block">Documents</label>
-        <Input type="file" />
-      </div>
+      {/* Ajoutez les autres champs comme nécessaire */}
 
       <div className="flex justify-end">
-        <Button className="mr-2" type="default" icon={<MinusCircleOutlined />}>Cancel</Button>
-        <Button type="primary" icon={<PlusOutlined />}>Save</Button>
+        <Button type="primary" htmlType="submit" icon={<PlusOutlined />}>{isNew ? 'Créer' : 'Mettre à jour'}</Button>
       </div>
-    </div>
+    </Form>
   );
 };
 

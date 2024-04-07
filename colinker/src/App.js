@@ -37,12 +37,12 @@ function App() {
                     <Route path="/MyAssociation" element={<MyAssociation />} />
                     <Route path="/Votes" element={<VoteList />} />
                     <Route path="/Vote/:id" element={<Vote />} />
-                    <Route path="/Assemblée Générale" element={<Ag />} />
+                    <Route path="/ag" element={<Ag />} />
                     {/* Admin */}
                     <Route path="/admin/dashboard" element={<Ag />} />
                     <Route path="/admin/userManagement" element={<Ag />} />
                     <Route path="/admin/ag" element={<Ag />} />
-                    <Route path="/admin/agForm" element={<AgForm />} />
+                    <Route path="/admin/ag/:id" element={<AgForm />} />
                     <Route path="/admin/vote" element={<Ag />} />
 
                   </Routes>

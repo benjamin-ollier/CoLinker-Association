@@ -11,21 +11,21 @@ interface IDocument extends Document {
 }
 
 interface IAssembleeGenerale extends Document {
-  titre: string;
+  title: string;
   description: string;
-  type: 'Ordinaire' | 'Extraordinaire';
-  dateDebut: Date;
-  dateFin: Date;
+  type: 'Ordinary' | 'Extraordinary';
+  dateStart: Date;
+  dateEnd: Date;
   status: string; 
-  ordreDuJour: string[];
-  lieu: string;
-  membres: mongoose.Types.ObjectId[];
-  votes: IVote[];
-  documents: IDocument[];
+  detailAgenda: string[];
+  location: string;
+  member: mongoose.Types.ObjectId[];
+  vote: IVote[];
+  document: IDocument[];
 }
 
 const assembleeGeneraleSchema = new mongoose.Schema<IAssembleeGenerale>({
-  titre: {
+  title: {
     type: String,
     required: true
   },
@@ -38,30 +38,30 @@ const assembleeGeneraleSchema = new mongoose.Schema<IAssembleeGenerale>({
     enum: ['Ordinaire', 'Extraordinaire'],
     required: true
   },
-  dateDebut: {
+  dateStart: {
     type: Date,
     required: true
   },
-  dateFin: {
+  dateEnd: {
     type: Date,
     required: true
   },
   status: {
     type: String,
-    required: true
+    required: false
   },
-  ordreDuJour: [{
+  detailAgenda: [{
     type: String
   }],
-  lieu: {
+  location: {
     type: String,
     required: true
   },
-  membres: [{
+  member: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
   }],
-  votes: [{
+  vote: [{
     membre: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
@@ -73,7 +73,7 @@ const assembleeGeneraleSchema = new mongoose.Schema<IAssembleeGenerale>({
       required: false
     }
   }],
-  documents: [{
+  document: [{
     titre: {
       type: String,
       required: false

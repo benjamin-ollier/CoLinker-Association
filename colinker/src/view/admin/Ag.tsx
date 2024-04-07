@@ -9,11 +9,11 @@ import { useNavigate } from 'react-router-dom';
 interface AssembleeGeneraleData {
   key: React.Key;
   _id: string;
-  titre: string;
-  lieu: string;
+  title: string;
+  location: string;
   status: 'approuvé' | 'en cours' | 'annoncé';
-  dateDebut: string;
-  dateFin: string;
+  dateStart: string;
+  dateEnd: string;
 }
 
 const Ag: React.FC = () => {
@@ -34,29 +34,29 @@ const Ag: React.FC = () => {
   }, []);
   const columns = [
     {
-      title: 'Titre',
-      dataIndex: 'titre',
-      key: 'titre',
+      title: 'title',
+      dataIndex: 'title',
+      key: 'title',
     },
     {
-      title: 'Lieu',
-      dataIndex: 'lieu',
-      key: 'lieu',
+      title: 'location',
+      dataIndex: 'location',
+      key: 'location',
     },
     {
       title: 'Date d’ouverture',
-      dataIndex: 'dateDebut',
-      key: 'dateDebut',
-      render: (dateDebut: string) => {
-        return dateDebut ? format(parseISO(dateDebut), 'dd/MM/yyyy HH:mm') : 'Date invalide';
+      dataIndex: 'dateStart',
+      key: 'dateStart',
+      render: (dateStart: string) => {
+        return dateStart ? format(parseISO(dateStart), 'dd/MM/yyyy HH:mm') : 'Date invalide';
       }
     },
     {
       title: 'Date de fermeture',
-      dataIndex: 'dateFin',
-      key: 'dateFin',
-      render: (dateFin: string) => {
-        return dateFin ? formatISO(parseISO(dateFin), { representation: 'date' }) : 'Date invalide';
+      dataIndex: 'dateEnd',
+      key: 'dateEnd',
+      render: (dateEnd: string) => {
+        return dateEnd ? formatISO(parseISO(dateEnd), { representation: 'date' }) : 'Date invalide';
       },
     },
     {
@@ -72,7 +72,7 @@ const Ag: React.FC = () => {
         }
         return (
           <Tag color={color} key={status}>
-            {status.toUpperCase()}
+            {status}
           </Tag>
         );
       },
@@ -88,7 +88,7 @@ const Ag: React.FC = () => {
   const onRow = (record: AssembleeGeneraleData) => {
     return {
       onClick: () => {
-        navigate(`/ag/${record._id}`);
+        navigate(`/admin/ag/${record._id}`);
       },
       onMouseEnter: (event: React.MouseEvent<HTMLTableRowElement>) => {
         const target = event.currentTarget;
@@ -102,6 +102,10 @@ const Ag: React.FC = () => {
     };
   };
 
+  const handleCreateClick = () => {
+    navigate('/admin/ag/new');
+  };
+
   return (
     <div>
       <div className='m-10'>
@@ -110,7 +114,7 @@ const Ag: React.FC = () => {
       <div className='grid place-content-end m-10'>
         <Space>
           <Input placeholder="Recherche..." prefix={<SearchOutlined />} />
-          <Button type="primary" icon={<PlusOutlined />}>
+          <Button type="primary" icon={<PlusOutlined />} onClick={handleCreateClick}>
             Créer
           </Button>
         </Space>

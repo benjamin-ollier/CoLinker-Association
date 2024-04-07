@@ -53,4 +53,13 @@ const createAG = async (agData: AGCreateData) => {
   }
 };
 
-export { getAllAG, getAGById, createAG };
+const updateAG = async (agData: AGCreateData, id:string) => {
+  try {
+    const response = await api.put(`ag/update/${id}`,agData);
+    return response.data;
+  } catch (error) {
+    throw new Error("Failed to update AG");
+  }
+};
+
+export { getAllAG, getAGById, createAG, updateAG };
