@@ -12,22 +12,32 @@ import { useNavigate } from 'react-router-dom';
 const { Sider } = Layout;
 
 
-const SideMenu = () => {
+const SideMenu = ({isAdminMode}) => {
+  let navigation = [
+    { label: "Home", key: "/Home" },
+    { label: "Mes Associations", key: "/MyAssociation" },
+    { label: "Vote", key: "/Votes" },
+    { label: "Assemblée Générale", key: "/Assemblée Générale" },
 
+  ];
 
-const navigation = [
-  { label: "Home", key: "/" },
-  { label: "Mes Associations", key: "/MyAssociation" },
-  { label: "Vote", key: "/Votes" },
-];
-
-const navigate = useNavigate();
-
-const handleMenuClick = ({ key }) => {
-  if (key) {
-    navigate(key);
+  if (isAdminMode) {
+    console.log("admin ",isAdminMode);
+    navigation = [
+      { label: "Dashboard", key: "/admin/dashboard" },
+      { label: "Gestion des membres", key: "/admin/userManagement" },
+      { label: "Assemblée Générale", key: "/admin/ag" },
+      { label: "Gestion des votes", key: "/admin/vote" },
+    ];
   }
-};
+
+  const navigate = useNavigate();
+
+  const handleMenuClick = ({ key }) => {
+    if (key) {
+      navigate(key);
+    }
+  };
 
 
   return (

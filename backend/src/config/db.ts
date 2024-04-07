@@ -9,7 +9,6 @@ const dbName = process.env.DB_NAME;
 const dbHost = process.env.DB_HOST;
 const dbPort = process.env.DB_PORT;
 
-// Assurez-vous que vos variables d'environnement sont correctement définies
 const mongoURI = `mongodb://${dbUser}:${dbPass}@${dbHost}:${dbPort}/${dbName}?authSource=admin`;
 
 export const connectDB = async (): Promise<void> => {
