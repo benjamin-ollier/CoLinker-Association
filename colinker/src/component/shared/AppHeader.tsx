@@ -3,6 +3,7 @@ import React , { useState} from 'react';
 import { Layout, Menu, Dropdown, Button } from 'antd';
 import { DownOutlined, SettingOutlined, LogoutOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
+import AssociationSelector from '../admin/AssociationSelector';
 
 const { Header } = Layout;
 
@@ -44,9 +45,14 @@ const AppHeader: React.FC<AppHeaderProps & {onAdminClick: () => void}> = ({ titl
     marginRight: '12px',
   };
 
+  const handleSettingsClick = () => {
+    navigate('/Réglage');
+  };
+
+
   const menu = (
     <Menu>
-      <Menu.Item key="settings" icon={<SettingOutlined />}>
+      <Menu.Item key="settings" icon={<SettingOutlined />} onClick={handleSettingsClick}>
         Réglages
       </Menu.Item>
       <Menu.Item key="logout" icon={<LogoutOutlined />} style={{ color: 'red' }} onClick={onLogout}>
@@ -56,7 +62,7 @@ const AppHeader: React.FC<AppHeaderProps & {onAdminClick: () => void}> = ({ titl
   );
 
   const displayTitle = isAdminMode ? `Admin - ${title}` : title;
-
+  
   return (
     <Header style={{ ...headerStyle, justifyContent: 'space-between' }}>
       <div style={logoStyle}>
@@ -64,7 +70,8 @@ const AppHeader: React.FC<AppHeaderProps & {onAdminClick: () => void}> = ({ titl
         {displayTitle}
       </div>
       <div className="flex items-center space-x-4">
-        <Button type="primary" onClick={handleAdminClick}>Admin</Button>
+        {isAdminMode && <AssociationSelector />}
+        <Button type="primary" onClick={handleAdminClick}>Administration</Button>
         <Dropdown overlay={menu} trigger={['click']}>
           <Button type="link" className="flex items-center space-x-1">
             <span>Mon Compte</span>

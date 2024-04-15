@@ -1,10 +1,29 @@
 import React from 'react';
 import { Form, Input, Button } from 'antd';
+import { useNavigate } from 'react-router-dom';
+import { register, login } from '../service/authService';
 
 const RegisterForm = ({ onLoginClick }) => {
-  const onFinish = (values) => {
-    console.log('Register Values:', values);
-    // Implémentez votre logique d'inscription ici
+  const navigate = useNavigate();
+
+  const onFinish = async (values) => {
+    try {
+      const response = await register(values);
+      console.log(response);
+      
+      if (response.message == "Registration successful") {
+        const { username, password } = values;
+        const credentials = { username, password };        
+        const res = await login(credentials);
+        if (res.token) {
+          localStorage.setItem('token', response.token);
+          localStorage.setItem('username', username);
+          navigate('/Home');
+        }
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+    }
   };
 
   return (
@@ -12,12 +31,23 @@ const RegisterForm = ({ onLoginClick }) => {
       <Form.Item name="email" rules={[{ required: true, message: 'Please input your email!' }]}>
         <Input placeholder="Email" />
       </Form.Item>
+
       <Form.Item name="username" rules={[{ required: true, message: 'Please input your username!' }]}>
         <Input placeholder="Username" />
       </Form.Item>
+
+      <Form.Item name="firstName" rules={[{ required: true, message: 'Please input your firstname!' }]}>
+        <Input placeholder="Prénom" />
+      </Form.Item>
+
+      <Form.Item name="lastName" rules={[{ required: true, message: 'Please input your lastname!' }]}>
+        <Input placeholder="Nom" />
+      </Form.Item>
+
       <Form.Item name="password" rules={[{ required: true, message: 'Please input your password!' }]}>
         <Input.Password placeholder="Password" />
       </Form.Item>
+
       <Form.Item>
         <Button type="primary" htmlType="submit" className="w-full">
           Register

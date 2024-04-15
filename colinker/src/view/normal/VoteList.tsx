@@ -57,13 +57,13 @@ const VoteList = () => {
     {
       title: 'Action',
       key: 'action',
-      render: (_, record) => (
+      render: (_:any, record:any) => (
         <Button onClick={() => handleAction(record.key)}>voter</Button>
       ),
     },
   ];
 
-  const handleAction = (key) => {
+  const handleAction = (key:any) => {
     navigate(`/vote/${key}`);
   };
 

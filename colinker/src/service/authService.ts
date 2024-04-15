@@ -19,4 +19,23 @@ const login = async (credentials: LoginCredentials) => {
   }
 };
 
-export { login };
+interface RegisterCredentials {
+  username: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  password: string;
+}
+
+const register = async (credentials: RegisterCredentials) => {
+  try {
+    const response = await api.post('/auth/register', credentials);
+    if (response.data) {
+      return response.data;
+    }
+  } catch (error) {
+    throw new Error("Registration failed");
+  }
+};
+
+export { login, register };

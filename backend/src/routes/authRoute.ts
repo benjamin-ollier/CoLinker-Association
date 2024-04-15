@@ -6,10 +6,10 @@ import express, { Request, Response, NextFunction } from 'express';
 const router = express.Router();
 
 router.post('/register', async (req: Request, res: Response, next: NextFunction) => {
-  const { username, email, password } = req.body;
+  const { username, email, password, firstName, lastName } = req.body;
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = new User({ username, email, password: hashedPassword });
+    const user = new User({ username, email,lastName,firstName, password: hashedPassword });
     await user.save();
     res.json({ message: 'Registration successful' });
   } catch (error) {

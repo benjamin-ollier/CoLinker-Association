@@ -8,13 +8,12 @@ const LoginForm = ({ onRegisterClick }) => {
 
   const onFinish = async (values) => {
     try {
-      console.log('Login Values:', values);
       const response = await login(values);
-      console.log(response);
-      
+      const { username} = values;
+
       if (response.token) {
         localStorage.setItem('token', response.token);
-        
+        localStorage.setItem('username', username);
         navigate('/Home');
       }
     } catch (error) {

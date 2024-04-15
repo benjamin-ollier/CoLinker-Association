@@ -46,7 +46,7 @@ const AgForm: React.FC = () => {
     
     if (isNew) {
       const res=await createAG(dataToSubmit);
-      if(res.status == '200' || res.status == '201') {
+      if(res.success) {
         navigate(`/admin/ag`);
       }
     } else {

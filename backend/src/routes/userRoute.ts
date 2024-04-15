@@ -1,0 +1,22 @@
+import express, { Request, Response, NextFunction } from 'express';
+import { authenticate } from '../middlewares/authenticate';
+import User from '../entities/user';
+
+const router = express.Router();
+
+router.get('/getByUsername/:username', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { username } = req.params;
+    const user = await User.findOne({ username }).select("-password");;
+
+    if (!user) {
+      return res.status(404).json({ message: 'Utilisateur non trouvé.' });
+    }
+
+    res.json(user);
+  } catch (error) {
+    next(error);
+  }
+});
+
+export default router;
