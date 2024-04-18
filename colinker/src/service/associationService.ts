@@ -34,8 +34,42 @@ const getUserAssociation = async (username) => {
   }
 };
 
+const getMembersNotInAssociation= async (associationid) => {
+  try {
+    const response = await api.get(`/association/membersNotInAssociation/${associationid}`);
+    if (response.data) {
+      return response.data;
+    }
+  } catch (error) {
+    throw new Error("post association failed");
+  }
+}
+
+const getAssociationMembers = async (association) => {
+  try {
+    const response = await api.get(`/association/associationMembers/${association}`);
+    if (response.data) {
+      return response.data;
+    }
+  } catch (error) {
+    throw new Error("get association members failed");
+  }
+}
+
+const addUserToAssociation = async (data) => {
+  try {
+    const response = await api.post(`/association/addUserToAssociation`, data);
+    if (response.data) {
+      return response.data;
+    }
+  } catch (error) {
+    throw new Error("post association failed");
+  }
+};
 
 
 
 
-export { postAssociation, getUserCreatorAssociation, getUserAssociation };
+
+
+export { postAssociation, getUserCreatorAssociation, getUserAssociation, getMembersNotInAssociation,getAssociationMembers, addUserToAssociation };

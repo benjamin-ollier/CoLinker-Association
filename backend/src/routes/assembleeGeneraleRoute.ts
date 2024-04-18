@@ -1,11 +1,12 @@
 import express, { Request, Response, NextFunction } from 'express';
 import AssembleeGenerale from '../entities/assembleeGenerale';
+import IAssembleeGenerale from '../entities/assembleeGenerale';
 
 const router = express.Router();
 
 router.post('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { title, description, type, dateStart, dateEnd, status, detailAgenda, location, member, vote, document } = req.body;
+    const { title, description, type, dateStart, dateEnd, status, detailAgenda, location, member, votes, document } = req.body;
 
     const nouvelleAG = new AssembleeGenerale({
       title,
@@ -17,7 +18,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
       detailAgenda,
       location,
       member,
-      vote,
+      votes,
       document
     });
 
@@ -37,6 +38,8 @@ router.get('/getById/:id', async (req: Request, res: Response, next: NextFunctio
     if (!ag) {
       return res.status(404).json({ message: 'Assemblée générale non trouvée.' });
     }
+    
+    determineStatus(ag);
 
     res.json(ag);
   } catch (error) {
@@ -47,6 +50,7 @@ router.get('/getById/:id', async (req: Request, res: Response, next: NextFunctio
 router.get('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const assembleesGenerales = await AssembleeGenerale.find();
+    assembleesGenerales.forEach(ag => determineStatus(ag));
 
     res.json(assembleesGenerales);
   } catch (error) {
@@ -57,7 +61,7 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
 router.put('/update/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
-    const { title, description, type, dateStart, dateEnd, status, detailAgenda, location, member, vote, document } = req.body;
+    const { title, description, type, dateStart, dateEnd, status, detailAgenda, location, member, votes, document } = req.body;
 
     const agToUpdate = await AssembleeGenerale.findById(id);
 
@@ -74,7 +78,7 @@ router.put('/update/:id', async (req: Request, res: Response, next: NextFunction
     agToUpdate.detailAgenda = detailAgenda;
     agToUpdate.location = location;
     agToUpdate.member = member;
-    agToUpdate.vote = vote;
+    agToUpdate.votes = votes;
     agToUpdate.document = document;
 
     await agToUpdate.save();
@@ -84,6 +88,40 @@ router.put('/update/:id', async (req: Request, res: Response, next: NextFunction
     next(error);
   }
 });
+
+function determineStatus(ag: any): void {
+  const now = new Date();
+  let statusChanged = false;
+
+  if (ag.status !== 'terminé' && ag.status != null) {
+    if (ag.dateStart > now) {
+      ag.status = 'annoncé';
+      statusChanged = true;
+    } else if (ag.dateStart <= now && ag.dateEnd >= now) {
+      ag.status = 'en cours';
+      statusChanged = true;
+    } else if (ag.dateEnd < now) {
+      ag.status = 'terminé';
+      statusChanged = true;
+    }
+  } else if (ag.status == null) {
+    if (ag.dateStart > now) {
+      ag.status = 'annoncé';
+      statusChanged = true;
+    } else if (ag.dateStart <= now && ag.dateEnd >= now) {
+      ag.status = 'en cours';
+      statusChanged = true;
+    } else {
+      ag.status = 'terminé';
+      statusChanged = true;
+    }
+  }
+
+  if (statusChanged) {
+    ag.markModified('status');
+  }
+}
+
 
 
 export default router;

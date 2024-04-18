@@ -40,9 +40,9 @@ const AppHeader: React.FC<AppHeaderProps & {onAdminClick: () => void}> = ({ titl
   };
 
   const logoImageStyle = {
-    height: '40px',
+    height: '50px',
     width: 'auto',
-    marginRight: '12px',
+    marginRight: '10px',
   };
 
   const handleSettingsClick = () => {

@@ -1,14 +1,23 @@
 import mongoose, { Document } from 'mongoose';
 
 interface IVote extends Document {
-  membre: mongoose.Types.ObjectId;
-  choix: string; //"Pour", "Contre", "Abstention"
+  titre: string;
+  description: string;
+  dateDebut: Date;
+  dateFin: Date;
+  options: IOption[];
+}
+
+interface IOption extends Document {
+  texte: string;
+  votants: mongoose.Types.ObjectId[];
 }
 
 interface IDocument extends Document {
   titre: string;
   url: string;
 }
+
 
 interface IAssembleeGenerale extends Document {
   title: string;
@@ -20,9 +29,22 @@ interface IAssembleeGenerale extends Document {
   detailAgenda: string[];
   location: string;
   member: mongoose.Types.ObjectId[];
-  vote: IVote[];
+  votes: IVote[];
   document: IDocument[];
 }
+
+const optionSchema = new mongoose.Schema<IOption>({
+  texte: { type: String, required: true },
+  votants: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
+}, { _id: true });
+
+const voteSchema = new mongoose.Schema<IVote>({
+  titre: { type: String, required: true },
+  description: { type: String, required: true },
+  dateDebut: { type: Date, required: false },
+  dateFin: { type: Date, required: false },
+  options: [optionSchema]
+}, { timestamps: true });
 
 const assembleeGeneraleSchema = new mongoose.Schema<IAssembleeGenerale>({
   title: {
@@ -48,6 +70,7 @@ const assembleeGeneraleSchema = new mongoose.Schema<IAssembleeGenerale>({
   },
   status: {
     type: String,
+    enum: ['annoncé', 'en cours', 'approuvé', 'terminé'],
     required: false
   },
   detailAgenda: [{
@@ -61,17 +84,9 @@ const assembleeGeneraleSchema = new mongoose.Schema<IAssembleeGenerale>({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
   }],
-  vote: [{
-    membre: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-      required: false
-    },
-    choix: {
-      type: String,
-      enum: ['Pour', 'Contre', 'Abstention'],
-      required: false
-    }
+  votes: [{
+    type: voteSchema,
+    required: false
   }],
   document: [{
     titre: {

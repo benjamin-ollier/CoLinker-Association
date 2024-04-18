@@ -31,11 +31,11 @@ const voteSchema = new mongoose.Schema<IVote>({
   },
   dateDebut: {
     type: Date,
-    required: true
+    required: false
   },
   dateFin: {
     type: Date,
-    required: true
+    required: false
   },
   question: {
     type: String,
