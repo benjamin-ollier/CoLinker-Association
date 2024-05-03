@@ -6,12 +6,21 @@ interface IMember {
   isBlocked: boolean;
 }
 
+interface IWidget {
+  title: string;
+  location: string
+  image: string
+}
+
 interface IAssociation extends Document {
   name: string;
   siret: string;
-  description: string;
-  information?: string;
+  informationDescription: string;
+  informationTitle?: string;
   member: IMember[];
+  image: string;
+  widgetTitle?: string;
+  widgets: IWidget[];
 }
 
 const MemberSchema = new Schema<IMember>({
@@ -29,12 +38,20 @@ const MemberSchema = new Schema<IMember>({
   isBlocked: { type: Boolean, default: false }
 });
 
+const WidgetSchema = new Schema<IWidget>({
+  title: { type: String, required: true },
+  location: { type: String, required: true},
+  image: { type: String, required: true}
+});
+
 const AssociationSchema = new Schema<IAssociation>({
   name: { type: String, required: true },
   siret: { type: String, required: true },
-  description: { type: String, required: true },
-  information: { type: String, optional: true },
-  member: [MemberSchema]
+  informationDescription: { type: String, required: false },
+  informationTitle: { type: String, optional: true, required:false },
+  member: [MemberSchema],
+  image: { type: String },
+  widgets: [WidgetSchema] ,
 });
 
 const Association = mongoose.model<IAssociation>('Association', AssociationSchema);

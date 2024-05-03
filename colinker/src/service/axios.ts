@@ -40,8 +40,14 @@ api.interceptors.response.use(
   (response) => {
     const method = response.config?.method;
     if (method && method !== 'get') {
-      const messageText = `${method.toUpperCase()} requête réussie.`;
-      message.success(messageText);
+      if(method == 'post'){
+        const messageText = `Les modifications ont bien été apportés`;
+        message.success(messageText);
+      }
+      if(method == 'delete'){
+        const messageText = `Les éléments ont bien été supprimé`;
+        message.success(messageText);
+      }
     }
     return response;
   },

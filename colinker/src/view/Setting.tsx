@@ -14,7 +14,7 @@ const Setting = () => {
     
   const fetchAgDetails = async () => {
     try {
-      const pseudo:string| null = localStorage.getItem('pseudo');
+      const pseudo:string| null = localStorage.getItem('username');
       if(pseudo){
       const data = await getUserInfo(pseudo);
       form.setFieldsValue({
@@ -45,7 +45,7 @@ const Setting = () => {
     }
 
   const handleSaveAssociationData = async (values) => {
-    const username = localStorage.getItem('pseudo');
+    const username = localStorage.getItem('username');
 
     if (!username) {
       console.error('Aucun utilisateur connecté trouvé');
