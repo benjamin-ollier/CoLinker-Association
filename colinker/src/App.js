@@ -13,6 +13,8 @@ import AgForm from "./view/admin/AgForm";
 import AuthPage from "./view/AuthPage.tsx";
 import Setting from "./view/Setting.tsx";
 import UserManagement from "./view/admin/UserManagement.tsx";
+import DashboardManagement from './view/admin/DashboardManagement';
+
 import {
   AssociationProvider,
   useAssociation,
@@ -76,7 +78,7 @@ function AssociationContent({ isAdminMode }) {
   return (
     <Routes>
       {/* Admin Routes */}
-      <Route path="/admin/dashboard" element={<Ag />} />
+      <Route path="/admin/dashboard" element={<DashboardManagement />} />
       <Route path="/admin/userManagement" element={<UserManagement />} />
       <Route path="/admin/ag" element={<Ag />} />
       <Route path="/admin/ag/:id" element={<AgForm />} />

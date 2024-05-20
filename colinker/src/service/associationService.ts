@@ -12,6 +12,17 @@ const postAssociation = async (data) => {
   }
 };
 
+const putDashboardAssociation = async (data) => {
+  try {
+    const response = await api.put(`/association/dashboard`, data);
+    if (response.data) {
+      return response;
+    }
+  } catch (error) {
+    throw new Error("put association failed");
+  }
+};
+
 const getUserCreatorAssociation = async (username) => {
   try {
     const response = await api.get(`/association/${username}`);
@@ -60,10 +71,32 @@ const addUserToAssociation = async (data) => {
   try {
     const response = await api.post(`/association/addUserToAssociation`, data);
     if (response.data) {
-      return response.data;
+      return response;
     }
   } catch (error) {
     throw new Error("post association failed");
+  }
+};
+
+const removeUser = async (associationId,username) => {
+  try {
+    const response = await api.delete(`/association/removeMember/${associationId}/${username}`);
+    if (response.data) {
+      return response;
+    }
+  } catch (error) {
+    throw new Error("delete user association failed");
+  }
+};
+
+const editUserInAssociation = async (associationId, userId, updates) => {
+  try {
+    const response = await api.patch(`/association/editMember/${associationId}/${userId}`, updates);
+    if (response.data) {
+      return response.data;
+    }
+  } catch (error) {
+    throw new Error("Failed to edit user in association");
   }
 };
 
@@ -72,4 +105,4 @@ const addUserToAssociation = async (data) => {
 
 
 
-export { postAssociation, getUserCreatorAssociation, getUserAssociation, getMembersNotInAssociation,getAssociationMembers, addUserToAssociation };
+export { postAssociation, putDashboardAssociation, getUserCreatorAssociation, getUserAssociation, getMembersNotInAssociation,getAssociationMembers, addUserToAssociation, removeUser, editUserInAssociation };

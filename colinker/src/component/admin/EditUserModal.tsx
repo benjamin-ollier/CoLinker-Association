@@ -1,10 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Modal, Form, Input, Select, Switch } from 'antd';
+import { editUserInAssociation } from '../../service/associationService';
+import { useAssociation } from '../../context/AssociationContext';
 
 const { Option } = Select;
 
-const EditUserModal = ({ visible, onClose, user }) => {
-  const roles = ['Président', 'Trésorier', 'Secrétaire', 'Membre'];
+const EditUserModal = ({ visible, onClose, user, fetchData }) => {
+  const roles = ['Président', 'Créateur', 'Vice-Président', 'Secrétaire', 'Trésorier', 
+      'Membre du Conseil d\'Administration', 'Responsable des Communications', 
+      'Bénévole', 'Membre Actif', 'Membre Bienfaiteur', 'Responsable des Événements', 
+      'Coordinateur des Bénévoles', 'Responsable des Partenariats'];
+  const { selectedAssociationId } = useAssociation();
+
+  const handleEditUser = async (user) => {
+    const response = await editUserInAssociation(selectedAssociationId,user._id,user);
+    if (response?.status === 200) {
+      fetchData();
+      onClose();
+    }
+  }
 
   return (
     <Modal
@@ -17,19 +31,19 @@ const EditUserModal = ({ visible, onClose, user }) => {
       <Form
         initialValues={{ ...user }}
         onFinish={(values) => {
-          console.log('Updated User:', values);
+          handleEditUser(user);
           onClose();
         }}
       >
         <Form.Item
-          name="prenom"
+          name="firstName"
           label="Prénom"
           rules={[{ required: true, message: 'Please input the first name!' }]}
         >
           <Input disabled />
         </Form.Item>
         <Form.Item
-          name="nom"
+          name="lastName"
           label="Nom"
           rules={[{ required: true, message: 'Please input the last name!' }]}
         >

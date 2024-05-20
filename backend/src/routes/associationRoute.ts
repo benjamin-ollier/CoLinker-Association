@@ -38,26 +38,26 @@ router.post('/', async (req, res, next) => {
   }
 });
 
-// router.get('/:username', async (req, res, next) => {
-//   try {
-//     const { username } = req.params;
+router.get('/:username', async (req, res, next) => {
+  try {
+    const { username } = req.params;
 
-//     const user = await User.findOne({ username: username });
-//     if (!user) {
-//       return res.status(404).json({ message: "Utilisateur non trouvé." });
-//     }
+    const user = await User.findOne({ username: username });
+    if (!user) {
+      return res.status(404).json({ message: "Utilisateur non trouvé." });
+    }
 
-//     const association = await Association.findOne({ "member.user": user._id }).populate('member.user', 'username');
+    const association = await Association.findOne({ "member.user": user._id }).populate('member.user', 'username');
 
-//     if (!association) {
-//       return res.status(404).json({ message: "Aucune association trouvée pour cet utilisateur." });
-//     }
+    if (!association) {
+      return res.status(404).json({ message: "Aucune association trouvée pour cet utilisateur." });
+    }
 
-//     res.json(association);
-//   } catch (error) {
-//     next(error);
-//   }
-// });
+    res.json(association);
+  } catch (error) {
+    next(error);
+  }
+});
 
 router.get('/userAssociation/:username', async (req, res, next) => {
   try {
@@ -80,13 +80,18 @@ router.get('/userAssociation/:username', async (req, res, next) => {
   }
 });
 
-router.delete('/removeMember/:associationName/:userId', async (req, res) => {
-  const { associationName, userId } = req.params;
+router.delete('/removeMember/:associationId/:username', async (req, res) => {
+  const { associationId, username } = req.params;
 
   try {
+    const user = await User.findOne({ username: username });
+    if (!user) {
+      return res.status(404).send('User not found');
+    }
+
     const association = await Association.findByIdAndUpdate(
-      { name: associationName },
-      { $pull: { member: { user: userId } } },
+      associationId,
+      { $pull: { member: { user: user._id } } },
       { new: true }
     );
 
@@ -100,9 +105,13 @@ router.delete('/removeMember/:associationName/:userId', async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({
-      message: 'Error removing user from association'});
+      message: 'Error removing user from association'
+    });
   }
 });
+
+
+
 
 
 router.get('/membersNotInAssociation/:associationId', async (req, res) => {
@@ -184,7 +193,7 @@ router.get('/associationMembers/:associationId', async (req, res, next) => {
 
 router.post('/addUserToAssociation', async (req, res, next) => {
   try {
-    const { associationId, userId, role } = req.body;
+    const { associationId, userId } = req.body;
 
     const user = await User.findById(userId);
     if (!user) {
@@ -196,14 +205,14 @@ router.post('/addUserToAssociation', async (req, res, next) => {
       return res.status(404).json({ message: "Association non trouvée." });
     }
 
-    const isMember = association.member.some(member => member.user.toString() === userId);
+    const isMember = association.member.some(member => member.user.toString() === user._id.toString());
     if (isMember) {
       return res.status(400).json({ message: "L'utilisateur est déjà membre de cette association." });
     }
 
     association.member.push({
-      user: userId,
-      role: role,
+      user: user._id,
+      role: "Membre Actif",
       isBlocked: false
     });
 
@@ -217,6 +226,38 @@ router.post('/addUserToAssociation', async (req, res, next) => {
     next(error);
   }
 });
+
+router.patch('/editMember/:associationId/:userId', async (req, res) => {
+  const { associationId, userId } = req.params;
+  const { role, isBlocked } = req.body;
+
+  try {
+    const association = await Association.findById(associationId);
+    if (!association) {
+      return res.status(404).json({ message: "Association non trouvée." });
+    }
+
+    const memberIndex = association.member.findIndex(member => member.user.toString() === userId);
+    if (memberIndex === -1) {
+      return res.status(404).json({ message: "Membre non trouvé dans l'association." });
+    }
+
+    if (role) association.member[memberIndex].role = role;
+    if (isBlocked !== undefined) association.member[memberIndex].isBlocked = isBlocked;
+
+    await association.save();
+
+    res.status(200).json({
+      message: 'Mise à jour du membre réussie',
+      association: association
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: 'Erreur lors de la mise à jour du membre'    
+    });
+  }
+});
+
 
 
 export default router;
