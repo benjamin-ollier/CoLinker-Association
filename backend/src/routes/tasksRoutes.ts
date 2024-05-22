@@ -85,6 +85,14 @@ router.delete('/:id', async (req: Request, res: Response, next: NextFunction) =>
       return res.status(404).json({ message: "Tâche non trouvée" });
     }
 
+    if (task.taskRoom) {
+      const taskRoom = await TaskRoom.findById(task.taskRoom);
+      if (taskRoom) {
+        taskRoom.isAvailable = true;
+        await taskRoom.save();
+      }
+    }
+
     return res.status(200).json({ message: 'Tâche supprimée avec succès' });
   } catch (error) {
     next(error);
