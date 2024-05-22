@@ -7,6 +7,7 @@ export interface ITask extends mongoose.Document {
   dateDebut: Date;
   dateFin: Date;
   title: string;
+  taskRoom?: Types.ObjectId;
 }
 
 const taskSchema = new mongoose.Schema<ITask>(
@@ -28,6 +29,11 @@ const taskSchema = new mongoose.Schema<ITask>(
     title: {
       type: String,
       required: true,
+    },
+    taskRoom: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'TaskRoom',
+      required: false 
     }
   },
   { timestamps: true }
