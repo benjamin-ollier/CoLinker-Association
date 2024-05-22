@@ -1,8 +1,18 @@
 import express, { Request, Response, NextFunction } from "express";
 import TaskRoom from "../entities/task-room";
+import { Types } from "mongoose";
 
 const router = express.Router();
 
+router.get('/', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const allTaskRoom = await TaskRoom.find();
+      if (allTaskRoom.length == 0) return res.json({ message: "Il n'y a aucune salle" }).sendStatus(200);
+      return res.json(allTaskRoom).sendStatus(200);
+    } catch (error) {
+      next(error);
+    }
+  });
 
 router.post('/', async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -26,5 +36,26 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
       next(error);
     }
   });
+
+
+  router.delete('/:id', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id } = req.params;
+      if (!Types.ObjectId.isValid(id)) {
+        return res.status(400).json({ message: "ID invalide" });
+      }
+  
+      const taskRoom = await TaskRoom.findByIdAndDelete(id);
+      if (!taskRoom) {
+        return res.status(404).json({ message: "Salle non trouvée" });
+      }
+  
+      return res.status(200).json({ message: 'Salle supprimée avec succès' });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  
 
   export default router

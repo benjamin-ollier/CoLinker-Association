@@ -8,13 +8,14 @@ const router = express.Router();
 
 router.get('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const allTasks = await Task.find();
-    if (allTasks.length == 0) return res.json({message: "Il n'y a aucune tâche"}).sendStatus(200);
+    const allTasks = await Task.find().populate('taskRoom');
+    if (allTasks.length == 0) return res.json({ message: "Il n'y a aucune tâche" }).sendStatus(200);
     return res.json(allTasks).sendStatus(200);
   } catch (error) {
     next(error);
   }
 });
+
 
 
 router.post('/', async (req: Request, res: Response, next: NextFunction) => {
@@ -58,7 +59,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
       dateDebut,
       dateFin,
       title,
-      taskRoom: taskRoomId ?? undefined,
+      taskRoom: taskRoom ? taskRoom._id : undefined,
       tagued_usernames
     });
 
