@@ -35,13 +35,21 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
       return res.status(404).json({ message: "Un ou plusieurs utilisateurs attribués non trouvés.", notFoundUsernames });
     }
 
+    let taskRoom;
     if (taskRoomId) {
-      const taskRoom = await TaskRoom.findById(taskRoomId);
-      if (!taskRoom) {
-        return res.status(404).json({ message: "Salle non trouvée." });
-      }
-      if (!taskRoom.isAvailable) {
-        return res.status(400).json({ message: "La salle n'est pas disponible." });
+      try {
+        taskRoom = await TaskRoom.findById(taskRoomId);
+        if (!taskRoom) {
+          return res.status(404).json({ message: "Salle non trouvée." });
+        }
+        if (!taskRoom.isAvailable) {
+          return res.status(400).json({ message: "La salle n'est pas disponible." });
+        }
+        taskRoom.isAvailable = false
+        await taskRoom.save()
+      } catch (error) {
+        console.error("Erreur lors de la mise à jour de la salle :", error);
+        return res.status(500).json({ message: "Erreur lors de la mise à jour de la salle." });
       }
     }
 
@@ -56,7 +64,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
 
     await newTask.save();
 
-    res.status(201).json({ message: 'Tâche créée avec succès', task: newTask });
+    res.status(201).json({ message: 'Tâche créée avec succès', task: newTask, room: taskRoom });
   } catch (error) {
     next(error);
   }
