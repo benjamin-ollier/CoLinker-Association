@@ -2,6 +2,7 @@ import express, { Request, Response, NextFunction } from 'express';
 import { Types } from 'mongoose';
 import Task from '../entities/task';
 import User from '../entities/user';
+import TaskRoom from '../entities/task-room';
 
 const router = express.Router();
 
@@ -18,9 +19,9 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
 
 router.post('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { username, dateDebut, dateFin, title, tagued_usernames }: 
-    { username: string, dateDebut: Date, dateFin: Date, title: string, tagued_usernames: string[] } = req.body;
-    
+    const { username, dateDebut, dateFin, title, tagued_usernames, taskRoomId }: 
+      { username: string, dateDebut: Date, dateFin: Date, title: string, tagued_usernames: string[], taskRoomId?: string } = req.body;
+
     const user = await User.findOne({ username });
     if (!user) {
       return res.status(404).json({ message: "Utilisateur non trouvé." });
@@ -31,7 +32,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
 
     if (taggedUsernamesFound.length !== tagued_usernames.length) {
       const notFoundUsernames = tagued_usernames.filter(username => !taggedUsernamesFound.includes(username));
-      return res.status(404).json({ message: "Un ou plusieurs utilisateurs tagués non trouvés.", notFoundUsernames });
+      return res.status(404).json({ message: "Un ou plusieurs utilisateurs attribués non trouvés.", notFoundUsernames });
     }
 
     const newTask = new Task({
@@ -39,6 +40,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
       dateDebut,
       dateFin,
       title,
+      taskRoom: taskRoomId ?? undefined,
       tagued_usernames
     });
 

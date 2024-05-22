@@ -2,7 +2,6 @@ import mongoose, { Types } from 'mongoose';
 
 export interface ITaskRoom extends mongoose.Document {
   _id: Types.ObjectId;
-  taskId: Types.ObjectId;
   address: string;
   name: string;
   isAvailable: boolean;
@@ -10,11 +9,6 @@ export interface ITaskRoom extends mongoose.Document {
 
 const taskRoomSchema = new mongoose.Schema<ITaskRoom>(
   {
-    taskId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Task',
-      required: true
-    },
     address: {
       type: String,
       required: true
