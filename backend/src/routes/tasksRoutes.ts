@@ -15,29 +15,31 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
   }
 });
 
-router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const allTasks = await Task.find();
-    if (allTasks.length == 0) return res.json({message: "Il n'y a aucune tâche"}).sendStatus(200);
-    return res.json(allTasks).sendStatus(200);
-  } catch (error) {
-    next(error);
-  }
-});
 
 router.post('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { username, dateDebut, dateFin, title } = req.body;
-    const user = await User.findOne({username});
+    const { username, dateDebut, dateFin, title, tagued_usernames }: 
+    { username: string, dateDebut: Date, dateFin: Date, title: string, tagued_usernames: string[] } = req.body;
+    
+    const user = await User.findOne({ username });
     if (!user) {
       return res.status(404).json({ message: "Utilisateur non trouvé." });
+    }
+
+    const taggedUsers = await User.find({ username: { $in: tagued_usernames } });
+    const taggedUsernamesFound = taggedUsers.map(user => user.username);
+
+    if (taggedUsernamesFound.length !== tagued_usernames.length) {
+      const notFoundUsernames = tagued_usernames.filter(username => !taggedUsernamesFound.includes(username));
+      return res.status(404).json({ message: "Un ou plusieurs utilisateurs tagués non trouvés.", notFoundUsernames });
     }
 
     const newTask = new Task({
       username,
       dateDebut,
       dateFin,
-      title
+      title,
+      tagued_usernames
     });
 
     await newTask.save();
@@ -46,7 +48,8 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
   } catch (error) {
     next(error);
   }
-})
+});
+
 
 
 
