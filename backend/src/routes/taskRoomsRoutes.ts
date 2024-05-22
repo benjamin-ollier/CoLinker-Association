@@ -6,13 +6,15 @@ const router = express.Router();
 
 router.get('/', async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const allTaskRoom = await TaskRoom.find();
-      if (allTaskRoom.length == 0) return res.json({ message: "Il n'y a aucune salle" }).sendStatus(200);
-      return res.json(allTaskRoom).sendStatus(200);
+        const availableRooms = await TaskRoom.find({ isAvailable: true });
+        if (availableRooms.length === 0) {
+            return res.json({ message: "Il n'y a aucune salle disponible" }).sendStatus(200);
+        }
+        return res.json(availableRooms).sendStatus(200);
     } catch (error) {
-      next(error);
+        next(error);
     }
-  });
+});
 
 router.post('/', async (req: Request, res: Response, next: NextFunction) => {
     try {
