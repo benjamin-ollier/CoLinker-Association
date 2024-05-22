@@ -2,6 +2,7 @@ import express, { Request, Response, NextFunction } from 'express';
 import { Types } from 'mongoose';
 import Task from '../entities/task';
 import User from '../entities/user';
+import TaskRoom from '../entities/task-room';
 
 const router = express.Router();
 
@@ -34,6 +35,16 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
       return res.status(404).json({ message: "Un ou plusieurs utilisateurs attribués non trouvés.", notFoundUsernames });
     }
 
+    if (taskRoomId) {
+      const taskRoom = await TaskRoom.findById(taskRoomId);
+      if (!taskRoom) {
+        return res.status(404).json({ message: "Salle non trouvée." });
+      }
+      if (!taskRoom.isAvailable) {
+        return res.status(400).json({ message: "La salle n'est pas disponible." });
+      }
+    }
+
     const newTask = new Task({
       username,
       dateDebut,
@@ -50,7 +61,6 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
     next(error);
   }
 });
-
 
 
 

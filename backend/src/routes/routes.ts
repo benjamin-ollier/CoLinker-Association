@@ -16,7 +16,7 @@ router.use('/ag', agRoutes);
 router.use('/association', associationRoute);
 router.use('/association', associationDashboardRoute);
 router.use('/tasks', tasksRoutes);
-router.use('/notes', taskRoomsRoutes);
+router.use('/taskRooms', taskRoomsRoutes);
 router.use('/notes', notesRoutes);
 
 export default router;
