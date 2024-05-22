@@ -15,7 +15,8 @@ const taskRoomSchema = new mongoose.Schema<ITaskRoom>(
     },
     name: {
       type: String,
-      required: true
+      required: true,
+      unique: true
     },
     isAvailable: {
       type: Boolean,

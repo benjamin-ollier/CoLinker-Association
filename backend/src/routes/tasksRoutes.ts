@@ -2,7 +2,6 @@ import express, { Request, Response, NextFunction } from 'express';
 import { Types } from 'mongoose';
 import Task from '../entities/task';
 import User from '../entities/user';
-import TaskRoom from '../entities/task-room';
 
 const router = express.Router();
 
