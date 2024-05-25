@@ -6,11 +6,44 @@ import TaskRoom from '../entities/task-room';
 
 const router = express.Router();
 
-router.get('/', async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const allTasks = await Task.find().populate('taskRoom');
-    if (allTasks.length == 0) return res.json({ message: "Il n'y a aucune tâche" }).sendStatus(200);
-    return res.json(allTasks).sendStatus(200);
+router.get('/createdBy/:username', async (req: Request, res: Response, next: NextFunction) => {
+  try {    
+    const { username } = req.params;
+
+    const user = await User.findOne({ username });
+    if (!user) {
+      return res.status(404).json({ message: "Utilisateur non trouvé." });
+    }
+
+    const tasks = await Task.find({ username }).populate('taskRoom');
+    if (tasks.length === 0) {
+      return res.status(200).json({ message: "Aucune tâche trouvée pour cet utilisateur" });
+    }
+
+    return res.status(200).json(tasks);
+
+  } catch (error) {
+    next(error);
+  }
+});
+
+
+router.get('/attributed/:username', async (req: Request, res: Response, next: NextFunction) => {
+  try {    
+    const { username } = req.params;
+
+    const user = await User.findOne({ username });
+    if (!user) {
+      return res.status(404).json({ message: "Utilisateur non trouvé." });
+    }
+
+    const tasks = await Task.find({ tagued_usernames: username }).populate('taskRoom');
+    if (tasks.length === 0) {
+      return res.status(200).json({ message: "Aucune tâche trouvée pour cet utilisateur" });
+    }
+
+    return res.status(200).json(tasks);
+
   } catch (error) {
     next(error);
   }
@@ -48,6 +81,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
         }
         taskRoom.isAvailable = false
         await taskRoom.save()
+
       } catch (error) {
         console.error("Erreur lors de la mise à jour de la salle :", error);
         return res.status(500).json({ message: "Erreur lors de la mise à jour de la salle." });

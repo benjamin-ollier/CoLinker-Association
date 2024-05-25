@@ -8,7 +8,7 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const availableRooms = await TaskRoom.find({ isAvailable: true });
         if (availableRooms.length === 0) {
-            return res.json({ message: "Il n'y a aucune salle disponible" }).sendStatus(200);
+            return res.json([]).sendStatus(200);
         }
         return res.json(availableRooms).sendStatus(200);
     } catch (error) {
