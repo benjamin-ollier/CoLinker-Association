@@ -22,12 +22,12 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
   try {
     const user = await User.findOne({ username });
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: 'Identifiants incorrects.' });
     }
 
     const passwordMatch = await bcrypt.compare(password, user.password);
     if (!passwordMatch) {
-      return res.status(401).json({ message: 'Incorrect password' });
+      return res.status(401).json({ message: 'Identifiants incorrects.' });
     }
 
     const token = jwt.sign({ userId: user._id }, process.env.SECRET_KEY || 'defaultSecretKey', {
@@ -44,7 +44,7 @@ router.get('/user/:username', async (req: Request, res: Response, next: NextFunc
   try {
     const user = await User.findOne({ username: username }).select("-password");
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: 'Utilisateur introuvable.' });
     }
     res.json(user);
   } catch (error) {

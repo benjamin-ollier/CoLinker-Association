@@ -10,6 +10,7 @@ export interface ITask extends mongoose.Document {
   taskRoom?: Types.ObjectId;
   tagued_usernames: string[];
   isDone: boolean;
+  isImportant: boolean
 }
 
 const taskSchema = new mongoose.Schema<ITask>(
@@ -41,6 +42,11 @@ const taskSchema = new mongoose.Schema<ITask>(
       type: Boolean,
       default: false,
       required: false
+    },
+    isImportant: {
+      type: Boolean,
+      default: false,
+      required: true
     },
     tagued_usernames: [{
       type: String,

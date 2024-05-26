@@ -15,7 +15,7 @@ router.get('/created/:username', async (req: Request, res: Response, next: NextF
       return res.status(404).json({ message: "Utilisateur non trouvé." });
     }
 
-    const tasks = await Task.find({ username }).populate('taskRoom');
+    const tasks = await Task.find({ username }).populate('taskRoom').sort({ isImportant : -1 });
     if (tasks.length === 0) {
       return res.status(200).json([]);
     }
@@ -40,7 +40,7 @@ router.get('/assigned/:username', async (req: Request, res: Response, next: Next
 
     let tasks
     if(isDone) tasks = await Task.find({ tagued_usernames: username, isDone : true }).populate('taskRoom');
-    else       tasks = await Task.find({ tagued_usernames: username, isDone : false }).populate('taskRoom');
+    else       tasks = await Task.find({ tagued_usernames: username, isDone : false }).populate('taskRoom').sort({ isImportant : -1 });
     
     if (tasks.length === 0) {
       return res.status(200).json([]);
@@ -57,15 +57,17 @@ router.get('/assigned/:username', async (req: Request, res: Response, next: Next
 
 router.post('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { username, dateDebut, dateFin, title, tagued_usernames, taskRoomId }: 
-      { username: string, dateDebut: Date, dateFin: Date, title: string, tagued_usernames: string[], taskRoomId?: string } = req.body;
+    const { username, dateDebut, dateFin, title, tagued_usernames, taskRoomId, isImportant }: 
+      { username: string, dateDebut: Date, dateFin: Date, title: string, tagued_usernames: string[], taskRoomId?: string , isImportant: boolean} = req.body;
+
+      console.log(req.body);
+      
 
     const user = await User.findOne({ username });
     if (!user) {
       return res.status(404).json({ message: "Utilisateur non trouvé." });
     }
 
-    // Vérification pour empêcher l'utilisateur de se taguer lui-même
     if (tagued_usernames.includes(username)) {
       return res.status(400).json({ message: "Vous ne pouvez pas vous attribuer la tâche à vous-même." });
     }
@@ -89,11 +91,8 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
           return res.status(400).json({ message: "La salle n'est pas disponible." });
         }
         taskRoom.isAvailable = false;
-        await taskRoom.save();
-
       } catch (error) {
-        console.error("Erreur lors de la mise à jour de la salle :", error);
-        return res.status(500).json({ message: "Erreur lors de la mise à jour de la salle." });
+          return res.status(500).json({ message: "Erreur lors de la mise à jour de la salle." });
       }
     }
 
@@ -103,10 +102,12 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
       dateFin,
       title,
       taskRoom: taskRoom ? taskRoom._id : undefined,
-      tagued_usernames
+      tagued_usernames,
+      isImportant: isImportant
     });
 
     await newTask.save();
+    if(taskRoom) await taskRoom.save();
 
     res.status(201).json({ message: 'Tâche créée avec succès', task: newTask, room: taskRoom });
   } catch (error) {
@@ -119,7 +120,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
 router.put('/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
-    const { isDone } = req.body;
+    const { isDone } = req.body        
 
     if (typeof isDone !== 'boolean') {
       return res.status(400).json({ message: "Le champ 'isDone' doit être un booléen." });
