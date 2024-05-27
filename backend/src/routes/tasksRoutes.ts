@@ -16,9 +16,6 @@ router.get('/created/:username', async (req: Request, res: Response, next: NextF
     }
 
     const tasks = await Task.find({ username }).populate('taskRoom').sort({ isImportant : -1 });
-    if (tasks.length === 0) {
-      return res.status(200).json([]);
-    }
 
     return res.status(200).json(tasks);
 
@@ -31,27 +28,31 @@ router.get('/created/:username', async (req: Request, res: Response, next: NextF
 router.get('/assigned/:username', async (req: Request, res: Response, next: NextFunction) => {
   try {    
     const { username } = req.params;
-    const { isDone } = req.query
+    const { isDone, start, end } = req.query;
 
     const user = await User.findOne({ username });
     if (!user) {
       return res.status(404).json({ message: "Utilisateur non trouvé." });
     }
 
-    let tasks
-    if(isDone) tasks = await Task.find({ tagued_usernames: username, isDone : true }).populate('taskRoom');
-    else       tasks = await Task.find({ tagued_usernames: username, isDone : false }).populate('taskRoom').sort({ isImportant : -1 });
-    
-    if (tasks.length === 0) {
-      return res.status(200).json([]);
+    let query: any = { tagued_usernames: username, isDone: !!isDone };
+    if (start && end) {
+      const startDate = new Date(start.toString());
+      const endDate = new Date(end.toString());
+      endDate.setDate(endDate.getDate() + 1);
+      query.dateDebut = { $gte: startDate };
+      query.dateFin = { $lte: endDate };
     }
 
-    return res.status(200).json(tasks);
+    let tasks = await Task.find(query).populate('taskRoom').sort({ isImportant: -1 });
 
+    return res.status(200).json(tasks);
   } catch (error) {
     next(error);
   }
 });
+
+
 
 
 
@@ -109,7 +110,8 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
     await newTask.save();
     if(taskRoom) await taskRoom.save();
 
-    res.status(201).json({ message: 'Tâche créée avec succès', task: newTask, room: taskRoom });
+    res.status(200).json({ message: 'Tâche créée avec succès', task: newTask, room: taskRoom });
+
   } catch (error) {
     next(error);
   }

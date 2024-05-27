@@ -22,16 +22,15 @@ const taskSchema = new mongoose.Schema<ITask>(
     },
     dateDebut: {
       type: Date,
-      required: true,
-      unique: true
+      required: true
     },
     dateFin: {
       type: Date,
-      required: true,
+      required: true
     },
     title: {
       type: String,
-      required: true,
+      required: true
     },
     taskRoom: {
       type: mongoose.Schema.Types.ObjectId,
