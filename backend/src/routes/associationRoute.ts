@@ -14,11 +14,11 @@ router.post('/', async (req, res, next) => {
       return res.status(404).json({ message: "Utilisateur non trouvé." });
     }
 
-    const existingAssociation = await Association.findOne({ "member.user": user, "member.role": "Créateur" });
+    //const existingAssociation = await Association.findOne({ "member.user": user, "member.role": "Créateur" });
   
-    if (existingAssociation) {
+    /*if (existingAssociation) {
       throw new Error("Cet utilisateur a déjà créé une association.");
-    }
+    }*/
 
     const nouvelleAssociation = new Association({
       name,
@@ -38,7 +38,7 @@ router.post('/', async (req, res, next) => {
   }
 });
 
-router.get('/:username', async (req, res, next) => {
+router.get('/getUserAssociation/:username', async (req, res, next) => {
   try {
     const { username } = req.params;
 
@@ -59,7 +59,7 @@ router.get('/:username', async (req, res, next) => {
   }
 });
 
-router.get('/userAssociation/:username', async (req, res, next) => {
+router.get('/userAssociation/username/:username', async (req, res, next) => {
   try {
     const { username } = req.params;
     
@@ -109,9 +109,6 @@ router.delete('/removeMember/:associationId/:username', async (req, res) => {
     });
   }
 });
-
-
-
 
 
 router.get('/membersNotInAssociation/:associationId', async (req, res) => {
@@ -255,6 +252,36 @@ router.patch('/editMember/:associationId/:userId', async (req, res) => {
     res.status(500).json({
       message: 'Erreur lors de la mise à jour du membre'    
     });
+  }
+});
+
+router.get('/allAssociations', async (req, res, next) => {
+  try {
+    const associations = await Association.find({});
+    res.json(associations);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get('/getAsoociationWithName/:name', async (req, res) => {
+  const { name } = req.params;
+
+  if (!name) {
+    return res.status(400).json({ message: "Le nom de l'association est requis pour la recherche." });
+  }
+
+  try {
+    const regex = new RegExp(name, 'i');
+    const associations = await Association.find({ name: regex });
+
+    if (!associations.length) {
+      return res.status(404).json({ message: "Aucune association trouvée avec ce nom." });
+    }
+
+    res.json(associations);
+  } catch (error) {
+    res.status(500).json({ message: "Erreur lors de la recherche des associations"});
   }
 });
 

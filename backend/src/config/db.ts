@@ -10,7 +10,6 @@ const dbHost = process.env.DB_HOST;
 const dbPort = process.env.DB_PORT;
 
 const mongoURI = `mongodb://${dbUser}:${dbPass}@${dbHost}:27018/${dbName}?authSource=admin`;
-console.log(dbPort);
 export const connectDB = async (): Promise<void> => {
   try {
     await mongoose.connect(mongoURI);

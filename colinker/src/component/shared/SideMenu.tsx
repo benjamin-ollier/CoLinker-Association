@@ -1,55 +1,41 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { Layout, Menu } from 'antd';
+import { useNavigate } from 'react-router-dom';
 import {
-  ContainerOutlined,
   DesktopOutlined,
   PieChartOutlined,
+  UserOutlined,
+  AuditOutlined
 } from '@ant-design/icons';
-import type { MenuProps } from 'antd';
-import { Menu } from 'antd';
-import { Layout } from 'antd';
-import { useNavigate } from 'react-router-dom';
 
 const { Sider } = Layout;
 
-
-const SideMenu = ({isAdminMode}) => {
-  let navigation = [
-    { label: "Home", key: "/Home" },
-    { label: "Mes Associations", key: "/MyAssociation" },
-    { label: "Vote", key: "/Votes" },
-    { label: "Assemblée Générale", key: "/ag" },
-
-  ];
-
-  if (isAdminMode) {
-    console.log("admin ",isAdminMode);
-    navigation = [
-      { label: "Dashboard", key: "/admin/dashboard" },
-      { label: "Gestion des membres", key: "/admin/userManagement" },
-      { label: "Assemblée Générale", key: "/admin/ag" },
-      { label: "Gestion des votes", key: "/admin/vote" },
-    ];
-  }
-
+const SideMenu = ({ isAdminMode }) => {
   const navigate = useNavigate();
 
-  const handleMenuClick = ({ key }) => {
-    if (key) {
-      navigate(key);
-    }
-  };
+  const menuItems = [
+    ...(isAdminMode ? [
+      { label: "Dashboard", key: "/admin/dashboard", icon: <DesktopOutlined /> },
+      { label: "Gestion des membres", key: "/admin/userManagement", icon: <UserOutlined /> },
+      { label: "Assemblée Générale", key: "/admin/ag", icon: <AuditOutlined /> },
+      { label: "Gestion des votes", key: "/admin/vote", icon: <PieChartOutlined /> }
+    ] : [
+      { label: "Home", key: "/home", icon: <DesktopOutlined /> },
+      { label: "Mes Associations", key: "/myAssociation", icon: <PieChartOutlined /> },
+      { label: "Vote", key: "/votes", icon: <UserOutlined /> },
+      { label: "Assemblée Générale", key: "/ag", icon: <AuditOutlined /> }
+    ])
+  ];
 
 
   return (
     <Sider width={240} style={{ background: '#fff' }}>
-      <div style={{ width: 240 }}>
-      <Menu              
+      <Menu
         mode="inline"
-        defaultSelectedKeys={["/"]}
-        items={navigation}
-        onClick={handleMenuClick}
+        defaultSelectedKeys={['/home']}
+        items={menuItems}
+        onClick={({ key }) => navigate(key)}
       />
-      </div>
     </Sider>
   );
 };

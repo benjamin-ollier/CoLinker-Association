@@ -101,8 +101,30 @@ const editUserInAssociation = async (associationId, userId, updates) => {
 };
 
 
+const getAllAsoociation = async () => {
+  try {
+    const response = await api.get(`/association/allAssociations`);
+    if (response.data) {
+      return response.data;
+    }
+  } catch (error) {
+    throw new Error("post association failed");
+  }
+};
+
+const getAssociationWithName = async (name) => {
+  try {
+    const response = await api.get(`/association/getAsoociationWithName/${name}`);
+    if (response.data) {
+      return response.data;
+    }
+  } catch (error) {
+    throw new Error("post association failed");
+  }
+};
 
 
 
 
-export { postAssociation, putDashboardAssociation, getUserCreatorAssociation, getUserAssociation, getMembersNotInAssociation,getAssociationMembers, addUserToAssociation, removeUser, editUserInAssociation };
+
+export { getAssociationWithName, getAllAsoociation, postAssociation, putDashboardAssociation, getUserCreatorAssociation, getUserAssociation, getMembersNotInAssociation,getAssociationMembers, addUserToAssociation, removeUser, editUserInAssociation };

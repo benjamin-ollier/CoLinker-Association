@@ -21,6 +21,8 @@ interface IAssociation extends Document {
   image: string;
   widgetTitle?: string;
   widgets: IWidget[];
+  paypal_CLIENT_ID:string;
+  paypal_CLIENT_SECRET:string;
 }
 
 const MemberSchema = new Schema<IMember>({
@@ -52,6 +54,8 @@ const AssociationSchema = new Schema<IAssociation>({
   member: [MemberSchema],
   image: { type: String },
   widgets: [WidgetSchema] ,
+  paypal_CLIENT_ID: { type: String },
+  paypal_CLIENT_SECRET: { type: String },
 });
 
 const Association = mongoose.model<IAssociation>('Association', AssociationSchema);
