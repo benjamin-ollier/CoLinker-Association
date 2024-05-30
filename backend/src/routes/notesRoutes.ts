@@ -1,5 +1,4 @@
 import express, { Request, Response, NextFunction } from 'express';
-import { Types } from 'mongoose';
 import Note from '../entities/note';
 import User from '../entities/user';
 
@@ -37,23 +36,43 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
   }
 })
 
+router.put('/:id', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { id } = req.params;
+    const { username, content, title } = req.body;
 
+    const noteToUpdate = await Note.findById(id);
+
+    if (!noteToUpdate) {
+      return res.status(404).json({ message: 'Note non trouvée.' });
+    }
+
+    noteToUpdate.username = username;
+    noteToUpdate.content = content;
+    noteToUpdate.title = title;
+
+    await noteToUpdate.save();
+
+    res.json({ message: 'Note mise à jour avec succès', note: noteToUpdate });
+  } catch (error) {
+    next(error);
+  }
+});
 
 router.delete('/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
-    if (!Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ message: "ID invalide" });
-    }
 
     const note = await Note.findByIdAndDelete(id);
+
     if (!note) {
-      return res.status(404).json({ message: "Tâche non trouvée" });
+      return res.status(404).json({ message: "Note non trouvée" });
     }
 
-    return res.status(200).json({ message: 'Tâche supprimée avec succès' });
+
+    res.status(204).json({ message: 'Note supprimée avec succès' });
   } catch (error) {
-    next(error);
+      next(error);
   }
 });
 
