@@ -7,6 +7,10 @@ export interface ITask extends mongoose.Document {
   dateDebut: Date;
   dateFin: Date;
   title: string;
+  taskRoom?: Types.ObjectId;
+  tagued_usernames: string[];
+  isDone: boolean;
+  isImportant: boolean
 }
 
 const taskSchema = new mongoose.Schema<ITask>(
@@ -28,7 +32,27 @@ const taskSchema = new mongoose.Schema<ITask>(
     title: {
       type: String,
       required: true,
-    }
+    },
+    taskRoom: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'TaskRoom',
+      required: false 
+    },
+    isDone: {
+      type: Boolean,
+      default: false,
+      required: false
+    },
+    isImportant: {
+      type: Boolean,
+      default: false,
+      required: true
+    },
+    tagued_usernames: [{
+      type: String,
+      ref: 'User',
+      required: true 
+    }]
   },
   { timestamps: true }
 );

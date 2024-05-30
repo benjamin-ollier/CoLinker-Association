@@ -5,6 +5,9 @@ import agRoutes from './assembleeGeneraleRoute';
 import associationRoute from './associationRoute';
 import associationDashboardRoute from './associationDashboardRoute';
 import tasksRoutes from './tasksRoutes';
+import notesRoutes from './notesRoutes';
+import taskRoomsRoutes from './taskRoomsRoutes';
+
 import donationRoute from './donationRoute';
 
 const router = express.Router();
@@ -16,6 +19,8 @@ router.use('/association', associationRoute);
 router.use('/association', associationDashboardRoute);
 router.use('/tasks', tasksRoutes);
 router.use('/donation', donationRoute);
+router.use('/taskRooms', taskRoomsRoutes);
+router.use('/notes', notesRoutes);
 
 
 export default router;
