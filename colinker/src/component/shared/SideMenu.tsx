@@ -16,6 +16,7 @@ const SideMenu = ({ isAdminMode }) => {
   const menuItems = [
     ...(isAdminMode ? [
       { label: "Dashboard", key: "/admin/dashboard", icon: <DesktopOutlined /> },
+      { label: "Gestion des activités", key: "/admin/activities", icon: <UserOutlined /> },
       { label: "Gestion des membres", key: "/admin/userManagement", icon: <UserOutlined /> },
       { label: "Assemblée Générale", key: "/admin/ag", icon: <AuditOutlined /> },
       { label: "Gestion des votes", key: "/admin/vote", icon: <PieChartOutlined /> }

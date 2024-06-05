@@ -18,7 +18,6 @@ interface IDocument extends Document {
   url: string;
 }
 
-
 interface IAssembleeGenerale extends Document {
   associationId: mongoose.Types.ObjectId;
   title: string;

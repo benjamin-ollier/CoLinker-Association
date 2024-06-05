@@ -16,11 +16,13 @@ import Setting from "./view/Setting.tsx";
 import UserManagement from "./view/admin/UserManagement.tsx";
 import DashboardManagement from './view/admin/DashboardManagement';
 import Donation from "./view/normal/Donation";
-
 import {
   AssociationProvider,
   useAssociation,
 } from "./context/AssociationContext";
+import Activities from "./view/admin/Activities";
+import ActivitiesForm from "./view/admin/ActivitiesForm";
+
 
 const { Header, Sider, Content } = Layout;
 
@@ -65,6 +67,8 @@ function App() {
                 <Route path="/admin/ag" element={<Ag />} />
                 <Route path="/admin/ag/:id" element={<AgForm />} />
                 <Route path="/admin/vote" element={<Ag />} />
+                <Route path="/admin/activities" element={<Activities />} />
+                <Route path="/admin/activity/:id" element={<ActivitiesForm />} />
               </Routes>
             </Content>
           </Layout>
