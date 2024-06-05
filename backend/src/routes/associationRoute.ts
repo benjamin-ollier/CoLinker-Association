@@ -38,7 +38,7 @@ router.post('/', async (req, res, next) => {
   }
 });
 
-router.get('/getUserAssociation/:username', async (req, res, next) => {
+router.get('/getUserAdminAssociation/:username', async (req, res, next) => {
   try {
     const { username } = req.params;
 

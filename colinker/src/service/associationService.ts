@@ -23,9 +23,9 @@ const putDashboardAssociation = async (data) => {
   }
 };
 
-const getUserCreatorAssociation = async (username) => {
+const getUserAdminAssociation = async (username) => {
   try {
-    const response = await api.get(`/association/${username}`);
+    const response = await api.get(`/association/getUserAdminAssociation/${username}`);
     if (response.data) {
       return response.data;
     }
@@ -127,4 +127,4 @@ const getAssociationWithName = async (name) => {
 
 
 
-export { getAssociationWithName, getAllAsoociation, postAssociation, putDashboardAssociation, getUserCreatorAssociation, getUserAssociation, getMembersNotInAssociation,getAssociationMembers, addUserToAssociation, removeUser, editUserInAssociation };
+export { getAssociationWithName, getAllAsoociation, postAssociation, putDashboardAssociation, getUserAdminAssociation, getUserAssociation, getMembersNotInAssociation,getAssociationMembers, addUserToAssociation, removeUser, editUserInAssociation };

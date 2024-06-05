@@ -4,11 +4,13 @@ import IAssembleeGenerale from '../entities/assembleeGenerale';
 
 const router = express.Router();
 
-router.post('/', async (req: Request, res: Response, next: NextFunction) => {
+router.post('/:associationId', async (req: Request, res: Response, next: NextFunction) => {
   try {
+    const { associationId } = req.params;
     const { title, description, type, dateStart, dateEnd, status, detailAgenda, location, member, votes, document } = req.body;
 
     const nouvelleAG = new AssembleeGenerale({
+      associationId,
       title,
       description,
       type,
@@ -42,6 +44,23 @@ router.get('/getById/:id', async (req: Request, res: Response, next: NextFunctio
     determineStatus(ag);
 
     res.json(ag);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get('/byAssociation/:associationId', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { associationId } = req.params;
+    const assembleesGenerales = await AssembleeGenerale.find({ associationId: associationId });
+
+    if (!assembleesGenerales.length) {
+      return res.status(404).json({ message: 'Aucune assemblée générale trouvée pour cette association.' });
+    }
+
+    assembleesGenerales.forEach(ag => determineStatus(ag));
+
+    res.json(assembleesGenerales);
   } catch (error) {
     next(error);
   }

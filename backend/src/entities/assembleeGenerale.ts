@@ -20,6 +20,7 @@ interface IDocument extends Document {
 
 
 interface IAssembleeGenerale extends Document {
+  associationId: mongoose.Types.ObjectId;
   title: string;
   description: string;
   type: 'Ordinary' | 'Extraordinary';
@@ -47,6 +48,9 @@ const voteSchema = new mongoose.Schema<IVote>({
 }, { timestamps: true });
 
 const assembleeGeneraleSchema = new mongoose.Schema<IAssembleeGenerale>({
+  associationId:{ 
+    type: mongoose.Schema.Types.ObjectId, ref: 'Association' 
+  },
   title: {
     type: String,
     required: true

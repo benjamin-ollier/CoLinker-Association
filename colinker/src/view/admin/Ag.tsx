@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Input, Table, Tag, Space } from 'antd';
 import { PlusOutlined, SearchOutlined } from '@ant-design/icons';
-import { getAllAG } from '../../service/agService';
+import { getByAssociationID } from '../../service/agService';
 import { format, parseISO } from 'date-fns';
 import { formatISO } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
+import { useAssociation } from '../../context/AssociationContext';
 
 interface AssembleeGeneraleData {
   key: React.Key;
@@ -18,20 +19,26 @@ interface AssembleeGeneraleData {
 
 const Ag: React.FC = () => {
   const navigate = useNavigate();
-
+  const { selectedAssociationId } = useAssociation();
   const [data, setData] = useState<AssembleeGeneraleData[]>([]);
-  useEffect(() => {
-    const fetchAGs = async () => {
-      try {
-        const response = await getAllAG();
-        setData(response.map((ag: any) => ({ ...ag, key: ag._id })));
-      } catch (error) {
-        console.error('Erreur lors du chargement des AGs:', error);
-      }
-    };
 
-    fetchAGs();
-  }, []);
+  useEffect(() => {
+    if (selectedAssociationId) {
+      fetchData();
+    }
+  }, [selectedAssociationId]);
+
+
+  const fetchData = async () => {
+    if(selectedAssociationId){
+        try {
+          const response = await getByAssociationID(selectedAssociationId as string);
+          setData(response.map((ag: any) => ({ ...ag, key: ag._id })));
+        } catch (error) {
+          console.error('Erreur lors du chargement des AGs:', error);
+        }
+    }
+  };
   const columns = [
     {
       title: 'title',
