@@ -22,6 +22,8 @@ import {
 } from "./context/AssociationContext";
 import Activities from "./view/admin/Activities";
 import ActivitiesForm from "./view/admin/ActivitiesForm";
+import AdminVoteForm from "./view/admin/AdminVoteForm";
+import AdminVotes from "./view/admin/AdminVotes";
 
 
 const { Header, Sider, Content } = Layout;
@@ -60,13 +62,14 @@ function App() {
                 <Route path="/donation/:name" element={<Donation />} />
                 <Route path="/votes" element={<VoteList />} />
                 <Route path="/vote/:id" element={<Vote />} />
-                <Route path="/ag" element={<Ag />} />
+                <Route path="/ag" element={<AssociationPage />} />
                 {/* Admin */}
                 <Route path="/admin/dashboard" element={<DashboardManagement />} />
                 <Route path="/admin/userManagement" element={<UserManagement />} />
                 <Route path="/admin/ag" element={<Ag />} />
                 <Route path="/admin/ag/:id" element={<AgForm />} />
-                <Route path="/admin/vote" element={<Ag />} />
+                <Route path="/admin/vote" element={<AdminVotes />} />
+                <Route path="/admin/vote/:id" element={<AdminVoteForm />} />
                 <Route path="/admin/activities" element={<Activities />} />
                 <Route path="/admin/activity/:id" element={<ActivitiesForm />} />
               </Routes>
