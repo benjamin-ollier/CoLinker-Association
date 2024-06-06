@@ -7,6 +7,10 @@ import associationDashboardRoute from './associationDashboardRoute';
 import tasksRoutes from './tasksRoutes';
 import notesRoutes from './notesRoutes';
 import taskRoomsRoutes from './taskRoomsRoutes';
+import pluginsRoutes from './pluginsRoutes';
+import activitiesRoutes from './activitiesRoutes';
+import donationRoute from './donationRoute';
+import voteRoute from './voteRoute';
 
 const router = express.Router();
 
@@ -16,7 +20,12 @@ router.use('/ag', agRoutes);
 router.use('/association', associationRoute);
 router.use('/association', associationDashboardRoute);
 router.use('/tasks', tasksRoutes);
+router.use('/donation', donationRoute);
 router.use('/taskRooms', taskRoomsRoutes);
 router.use('/notes', notesRoutes);
+router.use('/plugins', pluginsRoutes);
+router.use('/activities', activitiesRoutes);
+router.use('/vote', voteRoute);
+
 
 export default router;

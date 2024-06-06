@@ -5,6 +5,7 @@ import { useParams } from 'react-router-dom';
 import { getAGById, createAG, updateAG } from '../../service/agService';
 import moment from 'moment';
 import { useNavigate } from 'react-router-dom';
+import { useAssociation } from '../../context/AssociationContext';
 
 const { Option } = Select;
 
@@ -13,6 +14,7 @@ const AgForm: React.FC = () => {
   const { id } = useParams();
   const isNew = id === 'new';
   const [form] = Form.useForm();
+  const { selectedAssociationId } = useAssociation();
 
   useEffect(() => {
     if (!isNew) {
@@ -56,7 +58,7 @@ const AgForm: React.FC = () => {
     };
     
     if (isNew) {
-      const res=await createAG(dataToSubmit);
+      const res=await createAG(dataToSubmit, selectedAssociationId as String);
       if(res.success) {
         navigate(`/admin/ag`);
       }

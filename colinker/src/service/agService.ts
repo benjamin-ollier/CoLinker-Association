@@ -44,9 +44,9 @@ const getAGById = async (id: string) => {
   }
 };
 
-const createAG = async (agData: AGCreateData) => {
+const createAG = async (agData: AGCreateData, selectedAssociationId: String) => {
   try {
-    const response = await api.post('/ag', agData);
+    const response = await api.post(`/ag/${selectedAssociationId}`, agData);
     return response.data;
   } catch (error) {
     throw new Error("Failed to create AG");
@@ -61,5 +61,13 @@ const updateAG = async (agData: AGCreateData, id:string) => {
     throw new Error("Failed to update AG");
   }
 };
+const getByAssociationID = async (id: string) => {
+  try {
+    const response = await api.get(`/ag/byAssociation/${id}`);
+    return response.data;
+  } catch (error) {
+    throw new Error("Failed to fetch AG");
+  }
+};
 
-export { getAllAG, getAGById, createAG, updateAG };
+export { getAllAG, getAGById, createAG, updateAG,getByAssociationID };

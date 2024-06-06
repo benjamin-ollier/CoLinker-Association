@@ -1,26 +1,26 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Input, Table, Tag, Space } from 'antd';
 import { PlusOutlined, SearchOutlined } from '@ant-design/icons';
-import { getByAssociationID } from '../../service/agService';
+import { getActivitiesByAssociationId } from '../../service/activitiesService';
 import { format, parseISO } from 'date-fns';
-import { formatISO } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { useAssociation } from '../../context/AssociationContext';
+import LocationMap from '../../component/admin/LocationMap';  // Import the LocationMap component
 
-interface AssembleeGeneraleData {
+interface ActivityData {
   key: React.Key;
   _id: string;
   title: string;
-  location: string;
-  status: 'approuvé' | 'en cours' | 'annoncé';
+  location: { lat: number, lng: number };  // Change location to an object with lat and lng
+  status: 'approuvé' | 'en cours' | 'annoncé' | 'terminé';
   dateStart: string;
   dateEnd: string;
 }
 
-const Ag: React.FC = () => {
+const Activities: React.FC = () => {
   const navigate = useNavigate();
   const { selectedAssociationId } = useAssociation();
-  const [data, setData] = useState<AssembleeGeneraleData[]>([]);
+  const [data, setData] = useState<ActivityData[]>([]);
 
   useEffect(() => {
     if (selectedAssociationId) {
@@ -28,55 +28,56 @@ const Ag: React.FC = () => {
     }
   }, [selectedAssociationId]);
 
-
   const fetchData = async () => {
-    if(selectedAssociationId){
-        try {
-          const response = await getByAssociationID(selectedAssociationId as string);
-          setData(response.map((ag: any) => ({ ...ag, key: ag._id })));
-        } catch (error) {
-          console.error('Erreur lors du chargement des AGs:', error);
-        }
+    if (selectedAssociationId) {
+      try {
+        const response = await getActivitiesByAssociationId(selectedAssociationId);
+        setData(response.map((activity: any) => ({
+          ...activity,
+          key: activity._id,
+          location: { lat: activity.location.lat, lng: activity.location.lng },  // Ensure location is an object with lat and lng
+          dateStart: activity.dateStart ? format(parseISO(activity.dateStart), 'dd/MM/yyyy HH:mm') : 'Date invalide',
+          dateEnd: activity.dateEnd ? format(parseISO(activity.dateEnd), 'dd/MM/yyyy HH:mm') : 'Date invalide',
+        })));
+      } catch (error) {
+        console.error('Erreur lors du chargement des activités:', error);
+      }
     }
   };
+
   const columns = [
     {
-      title: 'title',
+      title: 'Titre',
       dataIndex: 'title',
       key: 'title',
     },
     {
-      title: 'location',
+      title: 'Lieu',
       dataIndex: 'location',
       key: 'location',
+      render: (location) => <LocationMap location={location} />,  // Use the LocationMap component to render the map
     },
     {
       title: 'Date d’ouverture',
       dataIndex: 'dateStart',
       key: 'dateStart',
-      render: (dateStart: string) => {
-        return dateStart ? format(parseISO(dateStart), 'dd/MM/yyyy HH:mm') : 'Date invalide';
-      }
     },
     {
       title: 'Date de fermeture',
       dataIndex: 'dateEnd',
       key: 'dateEnd',
-      render: (dateEnd: string) => {
-        return dateEnd ? formatISO(parseISO(dateEnd), { representation: 'date' }) : 'Date invalide';
-      },
     },
     {
-      title: 'Status',
+      title: 'Statut',
       key: 'status',
       dataIndex: 'status',
-      render: (status: 'approuvé' | 'en cours' | 'annoncé') => {
-        let color = 'green';
-        if (status === 'en cours') {
-          color = 'yellow';
-        } else if (status === 'annoncé') {
-          color = 'blue';
-        }
+      render: (status: 'approuvé' | 'en cours' | 'annoncé' | 'terminé') => {
+        let color = {
+          'approuvé': 'green',
+          'en cours': 'yellow',
+          'annoncé': 'blue',
+          'terminé': 'red'
+        }[status];
         return (
           <Tag color={color} key={status}>
             {status}
@@ -87,15 +88,16 @@ const Ag: React.FC = () => {
         { text: 'Approuvé', value: 'approuvé' },
         { text: 'En cours', value: 'en cours' },
         { text: 'Annoncé', value: 'annoncé' },
+        { text: 'Terminé', value: 'terminé' }
       ],
       onFilter: (value, record) => record.status.indexOf(value as string) === 0,
     }
   ];
 
-  const onRow = (record: AssembleeGeneraleData) => {
+  const onRow = (record: ActivityData) => {
     return {
       onClick: () => {
-        navigate(`/admin/ag/${record._id}`);
+        navigate(`/admin/activity/${record._id}`);
       },
       onMouseEnter: (event: React.MouseEvent<HTMLTableRowElement>) => {
         const target = event.currentTarget;
@@ -110,25 +112,25 @@ const Ag: React.FC = () => {
   };
 
   const handleCreateClick = () => {
-    navigate('/admin/ag/new');
+    navigate('/admin/activity/new');
   };
 
   return (
     <div>
       <div className='m-10'>
-        <h2>Assemblée Générale</h2>
+        <h2>Activités de l'Association</h2>
       </div>
       <div className='grid place-content-end m-10'>
         <Space>
           <Input placeholder="Recherche..." prefix={<SearchOutlined />} />
           <Button type="primary" icon={<PlusOutlined />} onClick={handleCreateClick}>
-            Créer
+            Créer une nouvelle activité
           </Button>
         </Space>
       </div>
-      <Table className='mx-8' columns={columns} dataSource={data} onRow={onRow}/>
+      <Table className='mx-8' columns={columns} dataSource={data} onRow={onRow} />
     </div>
   );
 };
 
-export default Ag;
+export default Activities;

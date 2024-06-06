@@ -6,6 +6,7 @@ interface IOption extends Document {
 }
 
 interface IVote extends Document {
+  associationId: mongoose.Types.ObjectId;
   titre: string;
   description: string;
   dateDebut: Date;
@@ -21,6 +22,9 @@ const optionSchema = new mongoose.Schema<IOption>({
 }, { _id: true });
 
 const voteSchema = new mongoose.Schema<IVote>({
+  associationId:{ 
+    type: mongoose.Schema.Types.ObjectId, ref: 'Association', required: true
+  },
   titre: {
     type: String,
     required: true

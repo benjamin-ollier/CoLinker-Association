@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Input, Button } from 'antd';
 import { getUserInfo } from '../service/userService'
-import { postAssociation, getUserCreatorAssociation } from '../service/associationService';
+import { postAssociation } from '../service/associationService';
 import { message } from 'antd';
 
 const Setting = () => {
   const [form] = Form.useForm();
-  const [associationForm] = Form.useForm();
 
   useEffect(() => {
       fetchAgDetails();
@@ -23,14 +22,6 @@ const Setting = () => {
         lastname: data.lastName,
       });
 
-      const associationData = await getUserCreatorAssociation(pseudo);
-      if (associationData) {
-        associationForm.setFieldsValue({
-          name: associationData.name,
-          siret: associationData.siret,
-          description: associationData.description,
-        });
-      }
     }
     } catch (error) {
       console.error("Erreur lors de la récupération des détails de l'user:", error);
@@ -111,7 +102,6 @@ const Setting = () => {
 
 
         <Form
-          form={associationForm}
           layout="vertical"
           onFinish={handleSaveAssociationData}
           className="p-10"

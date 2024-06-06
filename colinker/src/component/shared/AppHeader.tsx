@@ -1,4 +1,3 @@
-// src/components/AppHeader.tsx
 import React , { useState} from 'react';
 import { Layout, Menu, Dropdown, Button } from 'antd';
 import { DownOutlined, SettingOutlined, LogoutOutlined } from '@ant-design/icons';

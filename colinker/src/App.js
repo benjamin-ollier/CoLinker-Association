@@ -10,15 +10,21 @@ import VoteList from "./view/normal/VoteList.tsx";
 import Vote from "./view/normal/Vote.tsx";
 import Ag from "./view/admin/Ag.tsx";
 import AgForm from "./view/admin/AgForm";
+import AssociationPage from "./view/normal/Association";
 import AuthPage from "./view/AuthPage.tsx";
 import Setting from "./view/Setting.tsx";
 import UserManagement from "./view/admin/UserManagement.tsx";
 import DashboardManagement from './view/admin/DashboardManagement';
-
+import Donation from "./view/normal/Donation";
 import {
   AssociationProvider,
   useAssociation,
 } from "./context/AssociationContext";
+import Activities from "./view/admin/Activities";
+import ActivitiesForm from "./view/admin/ActivitiesForm";
+import AdminVoteForm from "./view/admin/AdminVoteForm";
+import AdminVotes from "./view/admin/AdminVotes";
+
 
 const { Header, Sider, Content } = Layout;
 
@@ -29,13 +35,10 @@ function App() {
     setIsAdminMode(!isAdminMode);
   };
 
-  function assoIsSelected() {
-    return <h1>Bienvenue !</h1>;
-  }
+
 
   return (
     <AssociationProvider>
-      <Router>
         <Routes>
           <Route path="/login" element={<AuthPage />} />
         </Routes>
@@ -53,37 +56,27 @@ function App() {
                 {/* shared */}
                 <Route path="/Réglage" element={<Setting />} />
                 {/* Normal */}
-                <Route path="/Home" element={<HomePage />} />
-                <Route path="/MyAssociation" element={<MyAssociation />} />
-                <Route path="/Votes" element={<VoteList />} />
-                <Route path="/Vote/:id" element={<Vote />} />
-                <Route path="/ag" element={<Ag />} />
+                <Route path="/home" element={<HomePage />} />
+                <Route path="/myAssociation" element={<MyAssociation />} />
+                <Route path="/association/:name" element={<AssociationPage />} />
+                <Route path="/donation/:name" element={<Donation />} />
+                <Route path="/votes" element={<VoteList />} />
+                <Route path="/vote/:id" element={<Vote />} />
+                <Route path="/ag" element={<AssociationPage />} />
+                {/* Admin */}
+                <Route path="/admin/dashboard" element={<DashboardManagement />} />
+                <Route path="/admin/userManagement" element={<UserManagement />} />
+                <Route path="/admin/ag" element={<Ag />} />
+                <Route path="/admin/ag/:id" element={<AgForm />} />
+                <Route path="/admin/vote" element={<AdminVotes />} />
+                <Route path="/admin/vote/:id" element={<AdminVoteForm />} />
+                <Route path="/admin/activities" element={<Activities />} />
+                <Route path="/admin/activity/:id" element={<ActivitiesForm />} />
               </Routes>
-              <AssociationContent isAdminMode={isAdminMode}/>
             </Content>
           </Layout>
         </Layout>
-      </Router>
     </AssociationProvider>
-  );
-}
-
-function AssociationContent({ isAdminMode }) {
-  const { selectedAssociationId } = useAssociation();
-
-  if (isAdminMode && !selectedAssociationId) {
-    return <h1 className="strong mt-5 ms-5">Veuillez sélectionner une association !</h1>;
-  }
-
-  return (
-    <Routes>
-      {/* Admin Routes */}
-      <Route path="/admin/dashboard" element={<DashboardManagement />} />
-      <Route path="/admin/userManagement" element={<UserManagement />} />
-      <Route path="/admin/ag" element={<Ag />} />
-      <Route path="/admin/ag/:id" element={<AgForm />} />
-      <Route path="/admin/vote" element={<Ag />} />
-    </Routes>
   );
 }
 

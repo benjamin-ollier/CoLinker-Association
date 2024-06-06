@@ -1,13 +1,13 @@
 import express, { Request, Response, NextFunction } from 'express';
-import Vote from '../entities/vote';
+import Activity from '../entities/activities';
 
 const router = express.Router();
 
 router.get('/byAssociation/:associationId', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { associationId } = req.params;
-    const votes = await Vote.find({ associationId: associationId }).populate('associationId');
-    res.json(votes);
+    const activities = await Activity.find({ association: associationId }).populate('association');
+    res.json(activities);
   } catch (error) {
     next(error);
   }
@@ -17,26 +17,27 @@ router.post('/:associationId', async (req: Request, res: Response, next: NextFun
   try {
     const { associationId } = req.params;
 
-    const newVote = new Vote({
+    const newActivity = new Activity({
       ...req.body,
-      associationId: associationId
+      association: associationId
     });
 
-    await newVote.save();
-    res.status(201).json({ message: 'Vote créé avec succès', vote: newVote });
+    await newActivity.save();
+    res.status(201).json({ message: 'Activité créée avec succès', activity: newActivity });
   } catch (error) {
     next(error);
   }
 });
 
+
 router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
-    const vote = await Vote.findById(id);
-    if (!vote) {
-      return res.status(404).json({ message: 'Vote non trouvé' });
+    const activity = await Activity.findById(id).populate('association');
+    if (!activity) {
+      return res.status(404).json({ message: 'Activité non trouvée' });
     }
-    res.json(vote);
+    res.json(activity);
   } catch (error) {
     next(error);
   }
@@ -45,11 +46,11 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
 router.put('/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
-    const vote = await Vote.findByIdAndUpdate(id, req.body, { new: true });
-    if (!vote) {
-      return res.status(404).json({ message: 'Vote non trouvé' });
+    const activity = await Activity.findByIdAndUpdate(id, req.body, { new: true });
+    if (!activity) {
+      return res.status(404).json({ message: 'Activité non trouvée' });
     }
-    res.json({ message: 'Vote mis à jour avec succès', vote });
+    res.json({ message: 'Activité mise à jour avec succès', activity });
   } catch (error) {
     next(error);
   }
@@ -58,11 +59,11 @@ router.put('/:id', async (req: Request, res: Response, next: NextFunction) => {
 router.delete('/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
-    const vote = await Vote.findByIdAndDelete(id);
-    if (!vote) {
-      return res.status(404).json({ message: 'Vote non trouvé' });
+    const activity = await Activity.findByIdAndDelete(id);
+    if (!activity) {
+      return res.status(404).json({ message: 'Activité non trouvée' });
     }
-    res.json({ message: 'Vote supprimé avec succès' });
+    res.json({ message: 'Activité supprimée avec succès' });
   } catch (error) {
     next(error);
   }
