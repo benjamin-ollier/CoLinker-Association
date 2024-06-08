@@ -9,6 +9,7 @@ import MyAssociation from "./view/normal/MyAssociation.tsx";
 import VoteList from "./view/normal/VoteList.tsx";
 import Vote from "./view/normal/Vote.tsx";
 import Ag from "./view/admin/Ag.tsx";
+import Files from "./view/admin/Files.tsx";
 import AgForm from "./view/admin/AgForm";
 import AssociationPage from "./view/normal/Association";
 import AuthPage from "./view/AuthPage.tsx";
@@ -72,6 +73,7 @@ function App() {
                 <Route path="/admin/vote/:id" element={<AdminVoteForm />} />
                 <Route path="/admin/activities" element={<Activities />} />
                 <Route path="/admin/activity/:id" element={<ActivitiesForm />} />
+                <Route path="/admin/files" element={<Files />} />
               </Routes>
             </Content>
           </Layout>

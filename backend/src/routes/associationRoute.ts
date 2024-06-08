@@ -1,9 +1,20 @@
+import * as fs from 'node:fs/promises';
 import express from 'express';
 import mongoose from 'mongoose';
+import multer from 'multer';
+import { Readable } from 'stream';
 import Association from '../entities/association';
 import User from '../entities/user';
+import { DeleteObjectCommand, GetObjectCommand, ListObjectsCommand, S3Client } from '@aws-sdk/client-s3';
+import { Options, Upload } from '@aws-sdk/lib-storage';
+import path from 'node:path';
 
 const router = express.Router();
+const upload = multer({ storage: multer.memoryStorage() });
+
+const AWS_REGION = process.env.AWS_REGION
+const AWS_ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID
+const AWS_ACCESS_KEY_SECRET = process.env.AWS_ACCESS_KEY_SECRET
 
 router.post('/', async (req, res, next) => {
   try {
@@ -285,6 +296,131 @@ router.get('/getAsoociationWithName/:name', async (req, res) => {
   }
 });
 
+router.get('/files/list/:associationId', async (req, res, next) => {
+  const s3Client = new S3Client({
+    region: AWS_REGION,
+    credentials: {
+      accessKeyId: AWS_ACCESS_KEY_ID!,
+      secretAccessKey: AWS_ACCESS_KEY_SECRET!,
+    },
+  });
 
+  const { associationId } = req.params;
+
+  const listObjectsParams = {
+    Bucket: 'projet-ecole-ong',
+    Prefix: `${associationId}/`,
+  };
+  
+  try {
+    const data = await s3Client.send(new ListObjectsCommand(listObjectsParams));
+    if (data.Contents) {
+      res.status(200).send(data.Contents.map(obj => obj.Key));
+    }
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.post('/files/upload/:associationId', upload.single('file'), async (req, res, next) => {
+  try {
+    const s3Client = new S3Client({
+      region: AWS_REGION,
+      credentials: {
+        accessKeyId: AWS_ACCESS_KEY_ID!,
+        secretAccessKey: AWS_ACCESS_KEY_SECRET!,
+      },
+    });
+    
+    if (req.file) {
+      const { associationId } = req.params;
+      const fileStream = Readable.from(req.file.buffer);
+      const params = {
+        Bucket: 'projet-ecole-ong',
+        Key: associationId + "/" + req.file.originalname,
+        Body: fileStream,
+      };
+      try {
+        const upload = new Upload({
+          client: s3Client,
+          parallelUploadSize: 1024 * 1024 * 5,
+          params,
+          parallelUploadCount: 5
+        } as Options);
+
+        await upload.done();
+        console.log('File uploaded successfully');
+        res.status(200).send('File uploaded');
+      } catch (err) {
+        console.error(err);
+        res.status(500).send('Failed to upload file');
+      }
+    }
+
+  } catch (e) {
+    next(e)
+  }
+});
+
+router.get('/files/download/:associationId/:filename', async (req, res, next) => {
+  const s3Client = new S3Client({
+    region: AWS_REGION,
+    credentials: {
+      accessKeyId: AWS_ACCESS_KEY_ID!,
+      secretAccessKey: AWS_ACCESS_KEY_SECRET!,
+    },
+  });
+
+  const { associationId, filename } = req.params;
+  const filePath = path.join(__dirname, '../../tmp', filename);
+
+  const listObjectsParams = {
+    Bucket: 'projet-ecole-ong',
+    Key: associationId + "/" + filename
+  };
+
+  try {
+    const data = await s3Client.send(new GetObjectCommand(listObjectsParams));
+    const fileData = await data.Body?.transformToByteArray();
+    if (fileData) {
+      await fs.writeFile(filePath, Buffer.from(fileData));
+      res.download(filePath, filename, async () => {
+        try {
+          await fs.unlink(filePath);
+        } catch (e) {
+          console.error(e);
+        }
+      })
+    }
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.delete('/files/delete/:associationId/:filename', async (req, res) => {
+  const s3Client = new S3Client({
+    region: AWS_REGION,
+    credentials: {
+      accessKeyId: AWS_ACCESS_KEY_ID!,
+      secretAccessKey: AWS_ACCESS_KEY_SECRET!,
+    },
+  });
+
+  const { associationId, filename } = req.params;
+
+  try {
+    const deleteObjectParams = {
+      Bucket: 'projet-ecole-ong',
+      Key: associationId + "/" + filename
+    };
+
+    await s3Client.send(new DeleteObjectCommand(deleteObjectParams));
+
+    res.status(200).json({ message: `File ${filename} deleted successfully` });
+  } catch (err) {
+    console.error('Error deleting file from S3:', err);
+    res.status(500).json({ error: 'Error deleting file' });
+  }
+});
 
 export default router;
