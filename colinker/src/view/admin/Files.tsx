@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, List } from 'antd';
+import { Button, List, message } from 'antd';
 import { UploadOutlined, DownloadOutlined, FileTwoTone, DeleteTwoTone } from '@ant-design/icons';
 import { getAssociationFiles, downloadAssociationFile, deleteAssociationFile, uploadAssociationFile } from '../../service/associationService';
 import { useAssociation } from '../../context/AssociationContext';
@@ -44,6 +44,10 @@ const Files: React.FC = () => {
       e.preventDefault();
       try {
         const file = e.target.files[0]
+        if (file.size > (9 * 1024 * 1024)) { // 9MB size limitation
+          message.error("Vous ne pouvez importer que des fichiers de 9 Mo maximum.");
+          return
+        }
         const formData = new FormData();
         formData.append('file', file);
 
