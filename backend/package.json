@@ -12,6 +12,8 @@
   "license": "ISC",
   "dependencies": {
     "axios": "^1.6.8",
+    "@aws-sdk/client-s3": "^3.588.0",
+    "@aws-sdk/lib-storage": "^3.588.0",
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
@@ -22,7 +24,8 @@
     "mongoose": "^8.3.0",
     "multer": "^1.4.5-lts.1",
     "nodemon": "^3.1.0",
-    "paypal-rest-sdk": "^1.8.1"
+    "paypal-rest-sdk": "^1.8.1",
+    "stream": "^0.0.2"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
