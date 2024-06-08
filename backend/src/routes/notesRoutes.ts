@@ -4,11 +4,18 @@ import User from '../entities/user';
 
 const router = express.Router();
 
-router.get('/', async (req: Request, res: Response, next: NextFunction) => {
+router.get('/:username', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const allNotes = await Note.find();
+    const {username} = req.params
+    const user = await User.findOne({username});
+    if (!user) {
+      return res.status(404).json({ message: "Utilisateur non trouvé." });
+    }
+
+    const allNotes = await Note.find({ username : username});
     if (allNotes.length == 0) return res.json({message: "Il n'y a aucune note"}).sendStatus(200);
     return res.json(allNotes).sendStatus(200);
+    
   } catch (error) {
     next(error);
   }

@@ -59,10 +59,7 @@ router.get('/assigned/:username', async (req: Request, res: Response, next: Next
 router.post('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { username, dateDebut, dateFin, title, tagued_usernames, taskRoomId, isImportant }: 
-      { username: string, dateDebut: Date, dateFin: Date, title: string, tagued_usernames: string[], taskRoomId?: string , isImportant: boolean} = req.body;
-
-      console.log(req.body);
-      
+      { username: string, dateDebut: Date, dateFin: Date, title: string, tagued_usernames: string[], taskRoomId?: string , isImportant: boolean} = req.body      
 
     const user = await User.findOne({ username });
     if (!user) {
