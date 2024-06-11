@@ -5,13 +5,13 @@ import { getActivitiesByAssociationId } from '../../service/activitiesService';
 import { format, parseISO } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { useAssociation } from '../../context/AssociationContext';
-import LocationMap from '../../component/admin/LocationMap';  // Import the LocationMap component
+import LocationMap from '../../component/admin/LocationMap';
 
 interface ActivityData {
   key: React.Key;
   _id: string;
   title: string;
-  location: { lat: number, lng: number };  // Change location to an object with lat and lng
+  location: { lat: number, lng: number };
   status: 'approuvé' | 'en cours' | 'annoncé' | 'terminé';
   dateStart: string;
   dateEnd: string;
@@ -35,7 +35,7 @@ const Activities: React.FC = () => {
         setData(response.map((activity: any) => ({
           ...activity,
           key: activity._id,
-          location: { lat: activity.location.lat, lng: activity.location.lng },  // Ensure location is an object with lat and lng
+          location: { lat: activity.location.lat, lng: activity.location.lng },
           dateStart: activity.dateStart ? format(parseISO(activity.dateStart), 'dd/MM/yyyy HH:mm') : 'Date invalide',
           dateEnd: activity.dateEnd ? format(parseISO(activity.dateEnd), 'dd/MM/yyyy HH:mm') : 'Date invalide',
         })));
@@ -55,7 +55,7 @@ const Activities: React.FC = () => {
       title: 'Lieu',
       dataIndex: 'location',
       key: 'location',
-      render: (location) => <LocationMap location={location} />,  // Use the LocationMap component to render the map
+      render: (location) => <LocationMap location={location} />,
     },
     {
       title: 'Date d’ouverture',
