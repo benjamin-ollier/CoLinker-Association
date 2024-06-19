@@ -5,7 +5,7 @@ import multer from 'multer';
 import { Readable } from 'stream';
 import Association from '../entities/association';
 import User from '../entities/user';
-import { DeleteObjectCommand, GetObjectCommand, ListObjectsCommand, S3Client } from '@aws-sdk/client-s3';
+import { DeleteObjectCommand, GetObjectCommand, ListObjectsCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { Options, Upload } from '@aws-sdk/lib-storage';
 import path from 'node:path';
 
@@ -322,6 +322,72 @@ router.get('/files/list/:associationId', async (req, res, next) => {
   }
 });
 
+router.post('/files/makedir/:associationId/:directoryname', async (req, res, next) => {
+  try {
+    const { associationId, directoryname } = req.params;
+
+    const s3Client = new S3Client({
+      region: AWS_REGION,
+      credentials: {
+        accessKeyId: AWS_ACCESS_KEY_ID!,
+        secretAccessKey: AWS_ACCESS_KEY_SECRET!
+      }
+    })
+
+    const putObjectParams = {
+      Bucket: 'projet-ecole-ong',
+      Key: associationId + "/" + directoryname + "/"
+    };
+    
+    await s3Client.send(new PutObjectCommand(putObjectParams));
+
+    res.status(200).json({ message: `Directory created successfully` });
+  } catch (err) {
+    console.error('Error creating directory from S3:', err);
+    res.status(500).json({ error: 'Error creating directory' });
+  }
+})
+
+router.post('/files/upload/:associationId/:folderName', upload.single('file'), async (req, res, next) => {
+  try {
+    const s3Client = new S3Client({
+      region: AWS_REGION,
+      credentials: {
+        accessKeyId: AWS_ACCESS_KEY_ID!,
+        secretAccessKey: AWS_ACCESS_KEY_SECRET!,
+      },
+    });
+    
+    if (req.file) {
+      const { associationId, folderName } = req.params;
+      const fileStream = Readable.from(req.file.buffer);
+      const params = {
+        Bucket: 'projet-ecole-ong',
+        Key: associationId + "/" + folderName.replace(":", "/") + req.file.originalname,
+        Body: fileStream,
+      };
+      try {
+        const upload = new Upload({
+          client: s3Client,
+          parallelUploadSize: 1024 * 1024 * 5,
+          params,
+          parallelUploadCount: 5
+        } as Options);
+
+        await upload.done();
+        console.log('File uploaded successfully');
+        res.status(200).send('File uploaded');
+      } catch (err) {
+        console.error(err);
+        res.status(500).send('Failed to upload file');
+      }
+    }
+
+  } catch (e) {
+    next(e)
+  }
+});
+
 router.post('/files/upload/:associationId', upload.single('file'), async (req, res, next) => {
   try {
     const s3Client = new S3Client({
@@ -371,22 +437,24 @@ router.get('/files/download/:associationId/:filename', async (req, res, next) =>
     },
   });
 
-  const { associationId, filename } = req.params;
-  const filePath = path.join(__dirname, '../../tmp', filename);
+  const associationId = req.params.associationId;
+  const filePath = req.params.filename.replace(":", "/");
+  const filename = filePath.split("/").pop();
+  const fileDirPath = path.join(__dirname, '../../tmp', filename!);
 
   const listObjectsParams = {
     Bucket: 'projet-ecole-ong',
-    Key: associationId + "/" + filename
+    Key: associationId + "/" + filePath
   };
 
   try {
     const data = await s3Client.send(new GetObjectCommand(listObjectsParams));
     const fileData = await data.Body?.transformToByteArray();
     if (fileData) {
-      await fs.writeFile(filePath, Buffer.from(fileData));
-      res.download(filePath, filename, async () => {
+      await fs.writeFile(fileDirPath, Buffer.from(fileData));
+      res.download(fileDirPath, filename!, async () => {
         try {
-          await fs.unlink(filePath);
+          await fs.unlink(fileDirPath);
         } catch (e) {
           console.error(e);
         }
@@ -406,12 +474,14 @@ router.delete('/files/delete/:associationId/:filename', async (req, res) => {
     },
   });
 
-  const { associationId, filename } = req.params;
+  const associationId = req.params.associationId;
+  const filePath = req.params.filename.replace(":", "/");
+  const filename = filePath.split("/").pop();
 
   try {
     const deleteObjectParams = {
       Bucket: 'projet-ecole-ong',
-      Key: associationId + "/" + filename
+      Key: associationId + "/" + filePath
     };
 
     await s3Client.send(new DeleteObjectCommand(deleteObjectParams));

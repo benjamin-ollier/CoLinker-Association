@@ -39,7 +39,7 @@ const getAssociationFiles = async (associationId) => {
     const response = await api.get(`/association/files/list/${associationId}`);
     if (response.data) {
       const files = response.data.filter(obj => obj !== associationId + "/");
-      return files.map(file => file.split("/")[1]);
+      return files.map((file: string) => file.replace(`${associationId}/`, ''));
     }
   } catch (error) {
     throw new Error("get association files failed");
@@ -64,14 +64,24 @@ const deleteAssociationFile = async (associationId, filename) => {
   }
 }
 
-const uploadAssociationFile = async (associationId, formData) => {
+const uploadAssociationFile = async (associationId, formData, folderName?: string) => {
   try {
-    const response = await api.post(`/association/files/upload/${associationId}`, formData, {
+    const url = folderName ? `/association/files/upload/${associationId}/${folderName}` : `/association/files/upload/${associationId}`
+    const response = await api.post(url, formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     });
     return response.status;
   } catch (error) {
     console.error("upload association file failed");
+  }
+}
+
+const createAssociationDirectory = async (associationId, folderName) => {
+  try {
+    const response = await api.post(`/association/files/makedir/${associationId}/${folderName}`);
+    return response.status;
+  } catch (error) {
+    console.error("make dir failed");
   }
 }
 
@@ -168,4 +178,4 @@ const getAssociationWithName = async (name) => {
 
 
 
-export { getAssociationWithName, getAllAsoociation, postAssociation, putDashboardAssociation, getUserAdminAssociation, getUserAssociation, getMembersNotInAssociation,getAssociationMembers, addUserToAssociation, removeUser, editUserInAssociation, getAssociationFiles, deleteAssociationFile, downloadAssociationFile, uploadAssociationFile };
+export { getAssociationWithName, getAllAsoociation, postAssociation, putDashboardAssociation, getUserAdminAssociation, getUserAssociation, getMembersNotInAssociation,getAssociationMembers, addUserToAssociation, removeUser, editUserInAssociation, getAssociationFiles, deleteAssociationFile, downloadAssociationFile, uploadAssociationFile, createAssociationDirectory };
