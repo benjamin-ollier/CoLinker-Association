@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Form, Input, Select, DatePicker, Button, Divider } from 'antd';
 import { PlusOutlined, LeftOutlined, MinusCircleOutlined } from '@ant-design/icons';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getVoteById, createVote, updateVote } from '../../service/votes';
+import { getVoteById, createVote, updateVote } from '../../service/voteService';
 import moment from 'moment';
 import { useAssociation } from '../../context/AssociationContext';
 
