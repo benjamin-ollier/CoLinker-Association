@@ -1,5 +1,5 @@
 import logo from "./logo.svg";
-import React, { useState } from "react";
+import React, { useState, useEffect } from 'react';
 import SideMenu from "./component/shared/SideMenu.tsx";
 import AppHeader from "./component/shared/AppHeader.tsx";
 import { Layout } from "antd";
@@ -19,30 +19,93 @@ import DashboardManagement from './view/admin/DashboardManagement';
 import Donation from "./view/normal/Donation";
 import {
   AssociationProvider,
-  useAssociation,
 } from "./context/AssociationContext";
 import Activities from "./view/admin/Activities";
 import ActivitiesForm from "./view/admin/ActivitiesForm";
 import AdminVoteForm from "./view/admin/AdminVoteForm";
 import AdminVotes from "./view/admin/AdminVotes";
-
+import { useAssociation } from './context/AssociationContext';
+import NotSelectedAssociation from "./component/admin/notSelectedAssociation";
 
 const { Header, Sider, Content } = Layout;
+
+function MainContent({ isAdminMode }) {
+  const { selectedAssociationId } = useAssociation();
+
+  // General routes for all users
+  const generalRoutes = [
+    <Route key="home" path="/home" element={<HomePage />} />,
+    <Route key="myAssociation" path="/myAssociation" element={<MyAssociation />} />,
+    <Route key="association" path="/association/:name" element={<AssociationPage />} />,
+    <Route key="donation" path="/donation/:name" element={<Donation />} />,
+    <Route key="votes" path="/votes" element={<VoteList />} />,
+    <Route key="vote" path="/vote/:id" element={<Vote />} />,
+    <Route key="setting" path="/Réglage" element={<Setting />} />
+  ];
+
+  const adminRoutes = [
+
+  ]
+
+  if (!selectedAssociationId) {
+    if (isAdminMode) {
+      // Admin mode is true but no association is selected
+      return (
+        <Routes>
+          {generalRoutes}
+          <Route path="*" element={<NotSelectedAssociation />} />
+        </Routes>
+      );
+    } else {
+      // Return general public routes if no association is selected and not in admin mode
+      return <Routes>{generalRoutes}</Routes>;
+    }
+  }
+
+  // Routes when an association is selected, includes both general and admin routes if in admin mode
+  return (
+    <Routes>
+      {generalRoutes}
+      {isAdminMode && (
+        <>
+          <Route path="/admin/dashboard" element={<DashboardManagement />} />
+          <Route path="/admin/userManagement" element={<UserManagement />} />
+          <Route path="/admin/ag" element={<Ag />} />
+          <Route path="/admin/ag/:id" element={<AgForm />} />
+          <Route path="/admin/vote" element={<AdminVotes />} />
+          <Route path="/admin/vote/:id" element={<AdminVoteForm />} />
+          <Route path="/admin/activities" element={<Activities />} />
+          <Route path="/admin/activity/:id" element={<ActivitiesForm />} />
+          <Route path="/admin/files" element={<Files />} />
+        </>
+      )}
+    </Routes>
+  );
+}
+
+
 
 function App() {
   const [isAdminMode, setIsAdminMode] = useState(false);
 
   const changeAdminMode = () => {
     setIsAdminMode(!isAdminMode);
+    localStorage.setItem('isAdminMode', JSON.stringify(isAdminMode));
+
   };
 
-
+  useEffect(() => {
+    localStorage.setItem('isAdminMode', JSON.stringify(isAdminMode));
+  }, [isAdminMode]);
 
   return (
     <AssociationProvider>
-        <Routes>
-          <Route path="/login" element={<AuthPage />} />
-        </Routes>
+      <Content>
+       <Routes>
+        <Route path="/login" element={<AuthPage />} />
+       </Routes>
+      </Content>
+
         <Layout style={{ minHeight: "100vh" }}>
           <AppHeader
             title="CoLinker"
@@ -53,28 +116,7 @@ function App() {
           <Layout>
             <SideMenu isAdminMode={isAdminMode} />
             <Content>
-              <Routes>
-                {/* shared */}
-                <Route path="/Réglage" element={<Setting />} />
-                {/* Normal */}
-                <Route path="/home" element={<HomePage />} />
-                <Route path="/myAssociation" element={<MyAssociation />} />
-                <Route path="/association/:name" element={<AssociationPage />} />
-                <Route path="/donation/:name" element={<Donation />} />
-                <Route path="/votes" element={<VoteList />} />
-                <Route path="/vote/:id" element={<Vote />} />
-                <Route path="/ag" element={<AssociationPage />} />
-                {/* Admin */}
-                <Route path="/admin/dashboard" element={<DashboardManagement />} />
-                <Route path="/admin/userManagement" element={<UserManagement />} />
-                <Route path="/admin/ag" element={<Ag />} />
-                <Route path="/admin/ag/:id" element={<AgForm />} />
-                <Route path="/admin/vote" element={<AdminVotes />} />
-                <Route path="/admin/vote/:id" element={<AdminVoteForm />} />
-                <Route path="/admin/activities" element={<Activities />} />
-                <Route path="/admin/activity/:id" element={<ActivitiesForm />} />
-                <Route path="/admin/files" element={<Files />} />
-              </Routes>
+            <MainContent isAdminMode={isAdminMode} />
             </Content>
           </Layout>
         </Layout>

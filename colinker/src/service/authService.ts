@@ -15,7 +15,7 @@ const login = async (credentials: LoginCredentials) => {
       return response.data;
     }
   } catch (error) {
-    throw new Error("Login failed");
+    throw new Error("Login failed: " + error );
   }
 };
 

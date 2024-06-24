@@ -1,31 +1,41 @@
-import mongoose, { Document } from 'mongoose';
+import mongoose, { Document, Types } from 'mongoose';
 
-interface IOption extends Document {
+export interface IOption extends Document {
+  _id: Types.ObjectId;
+  checked:boolean;
   texte: string;
-  votants: mongoose.Types.ObjectId[];
+  votants: Types.ObjectId[];
+  winningOptionStepOne:boolean;
+  winningOptionStepTwo:boolean;
 }
 
-interface IVote extends Document {
-  associationId: mongoose.Types.ObjectId;
-  titre: string;
+export interface IVote extends Document {
+  _id: Types.ObjectId;
+  associationId: Types.ObjectId;
+  title: string;
   description: string;
-  dateDebut: Date;
-  dateFin: Date;
+  startDate: Date;
+  endDate: Date;
   question: string;
-  typeDestinataire: 'Tous' | 'Administrateurs' | 'Membres spécifiques'; 
-  options: IOption[];
+  typeDestinataire: 'Tous' | 'Administrateurs' | 'Membres spécifiques';
+  optionStepOne: IOption[];
+  optionStepTwo: IOption[];
+  doubleStep: boolean;
+  currentStep: number;
+  quorum: number;
+  completed: boolean;
 }
 
 const optionSchema = new mongoose.Schema<IOption>({
   texte: { type: String, required: true },
-  votants: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }] 
+  votants: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
 }, { _id: true });
 
 const voteSchema = new mongoose.Schema<IVote>({
-  associationId:{ 
+  associationId: {
     type: mongoose.Schema.Types.ObjectId, ref: 'Association', required: true
   },
-  titre: {
+  title: {
     type: String,
     required: true
   },
@@ -33,11 +43,11 @@ const voteSchema = new mongoose.Schema<IVote>({
     type: String,
     required: true
   },
-  dateDebut: {
+  startDate: {
     type: Date,
     required: false
   },
-  dateFin: {
+  endDate: {
     type: Date,
     required: false
   },
@@ -50,7 +60,12 @@ const voteSchema = new mongoose.Schema<IVote>({
     enum: ['Tous', 'Administrateurs', 'Membres spécifiques'],
     required: true
   },
-  options: [optionSchema]
+  optionStepOne: [optionSchema],
+  optionStepTwo: [optionSchema],
+  doubleStep: { type: Boolean, default: true },
+  currentStep: { type: Number, default: 1 },
+  quorum: { type: Number, required: true },
+  completed: { type: Boolean, default: false }
 }, { timestamps: true });
 
 const Vote = mongoose.model<IVote>('Vote', voteSchema);

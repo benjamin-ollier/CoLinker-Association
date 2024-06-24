@@ -36,4 +36,19 @@ const updateVote = async (id, voteData) => {
   }
 };
 
+export const getVote = async (voteId: string) => {
+  const response = await api.get(`/vote/${voteId}`);
+  return response.data;
+};
+
+export const getAllVote = async () => {
+  const response = await api.get(`/vote`);
+  return response.data;
+};
+
+export const submitVote = async (voteId: string, optionId: string) => {
+  const response = await api.post(`/vote/submitVote/${voteId}`, { optionId });
+  return response.data;
+};
+
 export { getVotesByAssociationId, createVote, getVoteById, updateVote };
