@@ -12,6 +12,7 @@ export interface IOption extends Document {
 export interface IVote extends Document {
   _id: Types.ObjectId;
   associationId: Types.ObjectId;
+  ag: Types.ObjectId;
   title: string;
   description: string;
   startDate: Date;
@@ -33,6 +34,9 @@ const optionSchema = new mongoose.Schema<IOption>({
 const voteSchema = new mongoose.Schema<IVote>({
   associationId: {
     type: mongoose.Schema.Types.ObjectId, ref: 'Association', required: true
+  },
+  ag: {
+    type: mongoose.Schema.Types.ObjectId, ref: 'AssembleeGenerale', required: true
   },
   title: {
     type: String,

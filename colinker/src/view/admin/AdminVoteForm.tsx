@@ -4,6 +4,7 @@ import { PlusOutlined, LeftOutlined, MinusCircleOutlined } from '@ant-design/ico
 import { useParams, useNavigate } from 'react-router-dom';
 import { getVoteById, createVote, updateVote } from '../../service/voteService';
 import { getAssociationMembers } from '../../service/associationService';
+import { getByAssociationID } from '../../service/agService';
 import moment from 'moment';
 import { useAssociation } from '../../context/AssociationContext';
 
@@ -16,6 +17,8 @@ const VoteForm = () => {
   const [form] = Form.useForm();
   const { selectedAssociationId } = useAssociation();
   const [members, setMembers] = useState(0);
+  const [selectedOptionIdAg, setSelectedOptionIdAg] = useState();
+  const [optionsAg, setOptionsAg] = useState<{ _id: string; title: string }[]>([]);
 
   useEffect(() => {
     if (id) {
@@ -23,6 +26,7 @@ const VoteForm = () => {
     }
     if (selectedAssociationId) {
       fetchMembersForQuorum();
+      fetchAgWithAssociationId(selectedAssociationId);
     }
   }, [id]);
 
@@ -36,6 +40,15 @@ const VoteForm = () => {
       console.error('Failed to fetch members for quorum:', error);
     }
   };
+
+  const fetchAgWithAssociationId = async (associationId) => {
+    try {
+      const response = await getByAssociationID(associationId);
+      setOptionsAg(response);
+    } catch (error) {
+      console.error('Failed to fetch AG with association ID:', error);
+    }
+  }
 
   const fetchVoteDetails = async (voteId) => {
     try {
@@ -56,6 +69,10 @@ const VoteForm = () => {
     } catch (error) {
       console.error("Erreur lors de la récupération des détails du vote:", error);
     }
+  };
+
+  const handleSelectChange = value => {
+    setSelectedOptionIdAg(value);
   };
 
   const handleSaveData = async (values) => {
@@ -83,6 +100,17 @@ const VoteForm = () => {
       </Button>
       <Divider>Informations sur le vote</Divider>
       <Form form={form} layout="vertical" onFinish={handleSaveData}>
+      <Form.Item
+          name="ag"
+          label="Select an Option"
+          rules={[{ required: true, message: 'Please select an option!' }]}
+      >
+          <Select onChange={handleSelectChange} placeholder="Select an option">
+              {optionsAg.map(option => (
+                  <Option key={option._id} value={option._id}>{option.title}</Option>
+              ))}
+          </Select>
+      </Form.Item>
         <Form.Item name="title" label="Titre" rules={[{ required: true }]}>
           <Input placeholder="Titre" />
         </Form.Item>
