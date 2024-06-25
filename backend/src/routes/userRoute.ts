@@ -1,5 +1,4 @@
 import express, { Request, Response, NextFunction } from 'express';
-import { authenticate } from '../middlewares/authenticate';
 import User from '../entities/user';
 
 const router = express.Router();
@@ -19,7 +18,7 @@ router.get('/getByUsername/:username', async (req: Request, res: Response, next:
   }
 });
 
-router.delete('/deleteByUsername/:username', authenticate, async (req: Request, res: Response, next: NextFunction) => {
+router.delete('/deleteByUsername/:username', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { username } = req.params;
     const user = await User.findOne({ username });

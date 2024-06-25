@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Input, Table, Tag, Space } from 'antd';
 import { PlusOutlined, SearchOutlined } from '@ant-design/icons';
-import { getVotesByAssociationId } from '../../service/votes';
+import { getVotesByAssociationId } from '../../service/voteService';
 import { format, parseISO } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { useAssociation } from '../../context/AssociationContext';
@@ -52,15 +52,9 @@ const Votes = () => {
       render: (date) => (date ? format(parseISO(date), 'dd/MM/yyyy HH:mm') : 'Date invalide'),
     },
     {
-      title: 'Type de destinataire',
-      dataIndex: 'typeDestinataire',
-      key: 'typeDestinataire',
-      filters: [
-        { text: 'Tous', value: 'Tous' },
-        { text: 'Administrateurs', value: 'Administrateurs' },
-        { text: 'Membres spécifiques', value: 'Membres spécifiques' },
-      ],
-      onFilter: (value, record) => record.typeDestinataire.indexOf(value) === 0,
+      title: 'Quorum',
+      dataIndex: 'quorum',
+      key: 'quorum',
     }
   ];
 

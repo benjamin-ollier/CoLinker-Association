@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Input, Select, DatePicker, Button, Divider } from 'antd';
+import { Form, Input, Select, DatePicker, Button, Divider, Switch, InputNumber} from 'antd';
 import { PlusOutlined, LeftOutlined, MinusCircleOutlined } from '@ant-design/icons';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getVoteById, createVote, updateVote } from '../../service/votes';
+import { getVoteById, createVote, updateVote } from '../../service/voteService';
+import { getAssociationMembers } from '../../service/associationService';
+import { getByAssociationID } from '../../service/agService';
 import moment from 'moment';
 import { useAssociation } from '../../context/AssociationContext';
 
@@ -14,35 +16,70 @@ const VoteForm = () => {
   const isNew = !id || id === 'new';
   const [form] = Form.useForm();
   const { selectedAssociationId } = useAssociation();
+  const [members, setMembers] = useState(0);
+  const [selectedOptionIdAg, setSelectedOptionIdAg] = useState();
+  const [optionsAg, setOptionsAg] = useState<{ _id: string; title: string }[]>([]);
 
   useEffect(() => {
-    if (!isNew && id) {
+    if (id) {
       fetchVoteDetails(id);
     }
+    if (selectedAssociationId) {
+      fetchMembersForQuorum();
+      fetchAgWithAssociationId(selectedAssociationId);
+    }
   }, [id]);
+
+  const fetchMembersForQuorum = async () => {
+    if (!selectedAssociationId) return;
+  
+    try {
+      const response = await getAssociationMembers(selectedAssociationId);
+      setMembers(response.length);
+    } catch (error) {
+      console.error('Failed to fetch members for quorum:', error);
+    }
+  };
+
+  const fetchAgWithAssociationId = async (associationId) => {
+    try {
+      const response = await getByAssociationID(associationId);
+      setOptionsAg(response);
+    } catch (error) {
+      console.error('Failed to fetch AG with association ID:', error);
+    }
+  }
 
   const fetchVoteDetails = async (voteId) => {
     try {
       const data = await getVoteById(voteId);
-      form.setFieldsValue({
-        titre: data.titre,
-        description: data.description,
-        dateDebut: data.dateDebut ? moment(data.dateDebut) : null,
-        dateFin: data.dateFin ? moment(data.dateFin) : null,
-        question: data.question,
-        typeDestinataire: data.typeDestinataire,
-        options: data.options.map(option => ({ texte: option.texte }))
-      });
+      if(data) {
+        form.setFieldsValue({
+          title: data.title,
+          description: data.description,
+          startDate: moment(data.startDate),
+          endDate: moment(data.endDate),
+          question: data.question,
+          typeDestinataire: data.typeDestinataire,
+          optionStepOne: data.optionStepOne.map(option => ({ texte: option.texte })),
+          quorum: data.quorum,
+          doubleStep: data.doubleStep
+        });
+      }
     } catch (error) {
       console.error("Erreur lors de la récupération des détails du vote:", error);
     }
   };
 
+  const handleSelectChange = value => {
+    setSelectedOptionIdAg(value);
+  };
+
   const handleSaveData = async (values) => {
     const formattedValues = {
       ...values,
-      dateDebut: values.dateDebut ? values.dateDebut.toISOString() : null,
-      dateFin: values.dateFin ? values.dateFin.toISOString() : null,
+      startDate: values.startDate ? values.startDate.toISOString() : null,
+      endDate: values.endDate ? values.endDate.toISOString() : null,
     };
     try {
       if (isNew) {
@@ -50,7 +87,7 @@ const VoteForm = () => {
       } else {
         await updateVote(id, formattedValues);
       }
-      navigate('/admin/votes');
+      navigate('/admin/vote');
     } catch (error) {
       console.error("Erreur lors de l'enregistrement du vote:", error);
     }
@@ -63,30 +100,48 @@ const VoteForm = () => {
       </Button>
       <Divider>Informations sur le vote</Divider>
       <Form form={form} layout="vertical" onFinish={handleSaveData}>
-        <Form.Item name="titre" label="Titre" rules={[{ required: true }]}>
+      <Form.Item
+          name="ag"
+          label="Select an Option"
+          rules={[{ required: true, message: 'Please select an option!' }]}
+      >
+          <Select onChange={handleSelectChange} placeholder="Select an option">
+              {optionsAg.map(option => (
+                  <Option key={option._id} value={option._id}>{option.title}</Option>
+              ))}
+          </Select>
+      </Form.Item>
+        <Form.Item name="title" label="Titre" rules={[{ required: true }]}>
           <Input placeholder="Titre" />
         </Form.Item>
         <Form.Item name="description" label="Description" rules={[{ required: true }]}>
           <Input.TextArea rows={4} placeholder="Description" />
         </Form.Item>
-        <Form.Item name="dateDebut" label="Date et heure de début">
+        <Form.Item name="startDate" label="Date et heure de début">
           <DatePicker showTime format="YYYY-MM-DD HH:mm:ss" style={{ width: '100%' }} />
         </Form.Item>
-        <Form.Item name="dateFin" label="Date et heure de fin">
+        <Form.Item name="endDate" label="Date et heure de fin">
           <DatePicker showTime format="YYYY-MM-DD HH:mm:ss" style={{ width: '100%' }} />
         </Form.Item>
         <Form.Item name="question" label="Question" rules={[{ required: true }]}>
           <Input placeholder="Question" />
         </Form.Item>
-        <Form.Item name="typeDestinataire" label="Type de destinataire" rules={[{ required: true }]}>
-          <Select placeholder="Sélectionnez un type">
-            <Option value="Tous">Tous</Option>
-            <Option value="Administrateurs">Administrateurs</Option>
-            <Option value="Membres spécifiques">Membres spécifiques</Option>
-          </Select>
+        <div className='flex'>
+            <p>Nombre de membres de l'association: </p>
+            <p className='ms-2 mb-1'>{members.toString()}</p>
+        </div>
+        <Form.Item
+          name="quorum"
+          label="Quorum (nombre de membres requis pour valider le vote)"
+          rules={[{ required: true, message: "Veuillez saisir le quorum." }]}
+        >
+          <InputNumber min={1} style={{ width: '100%' }} placeholder="Entrez le quorum" />
+        </Form.Item>
+        <Form.Item name="doubleStep" label="Vote à double étape" valuePropName="checked" rules={[{ required: true }]}>
+          <Switch />
         </Form.Item>
         <Divider>Options</Divider>
-        <Form.List name="options">
+        <Form.List name="optionStepOne">
           {(fields, { add, remove }) => (
             <>
               {fields.map((field, index) => (

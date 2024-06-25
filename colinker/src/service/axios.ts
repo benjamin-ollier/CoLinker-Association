@@ -52,31 +52,33 @@ api.interceptors.response.use(
     return response;
   },
   (error) => {
-    if (error.config && error.config.method !== 'get') {
-      let messageText = 'Erreur dans la requête.';
-      if (error.response) {
-        switch (error.response.status) {
-          case 400:
-            messageText = 'La requête a échoué : Données invalides.';
-            break;
-          case 401:
-            messageText = 'La requête a échoué : Non autorisé.';
-            break;
-          case 403:
-            messageText = 'La requête a échoué : Accès refusé.';
-            break;
-          case 404:
-            messageText = 'La requête a échoué : Ressource non trouvée.';
-            break;
-          case 500:
-            messageText = 'La requête a échoué : Erreur interne du serveur.';
-            break;
-          default:
-            messageText = `La requête a échoué : Erreur ${error.response.status}.`;
-        }
-      }
-      message.error(messageText);
-    }
+    // if (error.config && error.config.method !== 'get') {
+    //   let messageText = '';
+    //   if (error.response) {
+    //     switch (error.response.status) {
+    //       case 400:
+    //         messageText = 'La requête a échoué : Données invalides.';
+    //         break;
+    //       case 401:
+    //         messageText = 'La requête a échoué : Non autorisé.';
+    //         break;
+    //       case 403:
+    //         messageText = 'La requête a échoué : Accès refusé.';
+    //         break;
+    //       case 404:
+    //         messageText = 'La requête a échoué : Ressource non trouvée.';
+    //         break;
+    //       case 500:
+    //         messageText = 'La requête a échoué : Erreur interne du serveur.';
+    //         break;
+    //       default:
+    //         messageText = `La requête a échoué : Erreur ${error.response.status}.`;
+    //     }
+    //   }
+    //   if(messageText!= ''){
+    //     message.error(messageText);
+    //   }
+    // }
     return Promise.reject(error);
   }
 );
