@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Input, Select, DatePicker, Button, Divider, Switch, InputNumber} from 'antd';
-import { PlusOutlined, LeftOutlined, MinusCircleOutlined } from '@ant-design/icons';
+import { Form, Input, Select, DatePicker, Button, Divider, Switch, InputNumber, message} from 'antd';
+import { PlusOutlined, LeftOutlined, MinusCircleOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getVoteById, createVote, updateVote } from '../../service/voteService';
+import { getVoteById, createVote, updateVote, deleteVote } from '../../service/voteService';
 import { getAssociationMembers } from '../../service/associationService';
 import { getByAssociationID } from '../../service/agService';
 import moment from 'moment';
@@ -74,6 +74,17 @@ const VoteForm = () => {
   const handleSelectChange = value => {
     setSelectedOptionIdAg(value);
   };
+
+  const handleDeleteVote = async () => {
+    try {
+      if(id){
+        await deleteVote(id);
+        navigate('/admin/vote');
+      }
+    } catch (error) {
+      message.error("Erreur lors de la suppression du vote");
+    }
+  }
 
   const handleSaveData = async (values) => {
     const formattedValues = {
@@ -166,6 +177,9 @@ const VoteForm = () => {
           )}
         </Form.List>
         <div className="flex justify-end">
+          <Button className='mr-2' type="primary" danger onClick={handleDeleteVote} icon={<DeleteOutlined />}>
+            Supprimer
+          </Button>
           <Button type="primary" htmlType="submit" icon={<PlusOutlined />}>
             {isNew ? 'Créer le vote' : 'Mettre à jour le vote'}
           </Button>

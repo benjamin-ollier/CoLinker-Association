@@ -214,5 +214,21 @@ const hasUserVoted = (vote: IVote, options: string, userId: string): boolean => 
   return optionList.some(option => option.votants.some(voterId => voterId.equals(userObjectId)));
 };
 
+router.delete('/:id', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { id } = req.params;
+    const vote = await Vote.findByIdAndDelete(id);
+    if (!vote) {
+      return res.status(404).json({ message: 'Vote non trouvé' });
+    }
+    res.json({ message: 'Vote supprimé avec succès' });
+  } catch (error) {
+    console.error('Error deleting vote:', error);
+    res.status(500).json({ error: 'Erreur serveur lors de la suppression du vote' });
+    next(error);
+  }
+});
+
+
 
 export default router;

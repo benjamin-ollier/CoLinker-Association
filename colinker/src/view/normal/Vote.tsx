@@ -39,52 +39,40 @@ const Vote = () => {
   const { id } = useParams<{ id: string }>();
 
   useEffect(() => {
-    const fetchVoteData = async () => {
-      setLoading(true);
-      try {
-        if (id) {
-          const response = await getVote(id);
-          const checkedOption = (response.currentStep === 1 ? response.optionStepOne : response.optionStepTwo)
-                                 .find(option => option.checked);
-          setSelectedOption(checkedOption ? checkedOption._id : null);
-          setVote(response);
-        }
-      } catch (error) {
-        message.error('Error fetching vote data');
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchVoteData();
   }, [id]);
+
+  const fetchVoteData = async () => {
+    setLoading(true);
+    try {
+      if (id) {
+        const response = await getVote(id);
+        const checkedOption = (response.currentStep === 1 ? response.optionStepOne : response.optionStepTwo)
+                               .find(option => option.checked);
+        setSelectedOption(checkedOption ? checkedOption._id : null);
+        setVote(response);
+      }
+    } catch (error) {
+      message.error('Error fetching vote data');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const onChange = (e: RadioChangeEvent) => {
     setSelectedOption(e.target.value);
   };
 
   const onSubmitVote = async () => {
-    if (!selectedOption) {
-      message.warning('Please select an option before voting.');
-      return;
-    }
-
     setLoading(true);
     try {
-      if(id){
+      console.log(id,selectedOption)
+      if(id && selectedOption){
         const response = await submitVote(id, selectedOption);
-        if (response.status >= 200 && response.status < 300){
+        console.log("id et selectedoption")
+        console.log("status",response.status)
           message.success('Vote enregistré avec succès');
-          const updatedVote = await getVote(id);
-          const checkedOption = (updatedVote.currentStep === 1 ? updatedVote.optionStepOne : updatedVote.optionStepTwo)
-                                 .find(option => option.checked);
-          setSelectedOption(checkedOption ? checkedOption._id : null);
-          setVote(updatedVote);
-        } else if (response.status === 409) {
-          message.error('Vous avez déjà voté pour cette option');
-        } else {
-          message.error('Error');
-        }
+          fetchVoteData();
       }
     } catch (error) {
       message.error('Error d\'enregistrement du vote. Vous avez déjà peut etre voté');

@@ -51,4 +51,9 @@ export const submitVote = async (voteId: string, optionId: string) => {
   return response.data;
 };
 
+export const deleteVote = async (voteId: string) => {
+  const response = await api.delete(`/vote/${voteId}`);
+  return response.data;
+};
+
 export { getVotesByAssociationId, createVote, getVoteById, updateVote };

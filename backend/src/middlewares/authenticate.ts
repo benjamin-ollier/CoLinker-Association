@@ -1,13 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import User from '../entities/user';  // Assurez-vous que cette importation est correcte
-import { IUser } from '../entities/user';  // Vérifiez le chemin d'importation
+import User from '../entities/user';
+import { IUser } from '../entities/user';
 
 interface ITokenPayload {
   userId: string;
 }
-
-// Assurez-vous que cette interface est accessible là où vous définissez `verifyToken`
 
 
 const verifyToken = (req: Request, res: Response, next: NextFunction) => {
