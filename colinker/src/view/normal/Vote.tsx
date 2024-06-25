@@ -15,7 +15,6 @@ interface IVote {
   startDate: Date;
   endDate: Date;
   question: string;
-  typeDestinataire: 'Tous' | 'Administrateurs' | 'Membres spécifiques';
   optionStepOne: IOption[];
   optionStepTwo: IOption[];
   doubleStep: boolean;
@@ -29,6 +28,8 @@ interface IOption {
   texte: string;
   votants: string[];
   checked: boolean;
+  winningOptionStepOne:boolean;
+  winningOptionStepTwo:boolean;
 }
 
 const Vote = () => {
@@ -43,7 +44,8 @@ const Vote = () => {
       try {
         if (id) {
           const response = await getVote(id);
-          const checkedOption = response.optionStepOne.find(option => option.checked) || response.optionStepTwo.find(option => option.checked);
+          const checkedOption = (response.currentStep === 1 ? response.optionStepOne : response.optionStepTwo)
+                                 .find(option => option.checked);
           setSelectedOption(checkedOption ? checkedOption._id : null);
           setVote(response);
         }
@@ -71,9 +73,12 @@ const Vote = () => {
     try {
       if(id){
         const response = await submitVote(id, selectedOption);
-        if (response.status === 200) {
+        if (response.status >= 200 && response.status < 300){
           message.success('Vote enregistré avec succès');
           const updatedVote = await getVote(id);
+          const checkedOption = (updatedVote.currentStep === 1 ? updatedVote.optionStepOne : updatedVote.optionStepTwo)
+                                 .find(option => option.checked);
+          setSelectedOption(checkedOption ? checkedOption._id : null);
           setVote(updatedVote);
         } else if (response.status === 409) {
           message.error('Vous avez déjà voté pour cette option');
@@ -90,10 +95,14 @@ const Vote = () => {
 
   const handleMenuClick = (e: any) => {
     if (vote && id) {
+      const newStep = parseInt(e.key);
       setVote({
         ...vote,
-        currentStep: parseInt(e.key),
+        currentStep: newStep,
       });
+      const checkedOption = (newStep === 1 ? vote.optionStepOne : vote.optionStepTwo)
+                             .find(option => option.checked);
+      setSelectedOption(checkedOption ? checkedOption._id : null);
     }
   };
 

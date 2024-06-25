@@ -17,7 +17,6 @@ export interface IVote extends Document {
   startDate: Date;
   endDate: Date;
   question: string;
-  typeDestinataire: 'Tous' | 'Administrateurs' | 'Membres spécifiques';
   optionStepOne: IOption[];
   optionStepTwo: IOption[];
   doubleStep: boolean;
@@ -53,11 +52,6 @@ const voteSchema = new mongoose.Schema<IVote>({
   },
   question: {
     type: String,
-    required: true
-  },
-  typeDestinataire: {
-    type: String,
-    enum: ['Tous', 'Administrateurs', 'Membres spécifiques'],
     required: true
   },
   optionStepOne: [optionSchema],

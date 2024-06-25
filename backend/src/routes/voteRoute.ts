@@ -125,54 +125,60 @@ router.post('/submitVote/:voteId', verifyToken, async (req: Request, res: Respon
   }
 });
 
+
 async function processVoteResults(vote: IVote): Promise<IVote> {
   const now = new Date();
-  if (vote.endDate && now > vote.endDate && !vote.completed) {
-    vote.completed = true;
+  if (now > vote.startDate && now < vote.endDate && !vote.completed) {
     let optionsToProcess = vote.currentStep === 1 ? vote.optionStepOne : vote.optionStepTwo;
-
-    // Calculate results directly
     const voteResults = optionsToProcess.map(option => option.votants.length);
     const totalVotes = voteResults.reduce((acc, current) => acc + current, 0);
 
     if (totalVotes >= vote.quorum) {
       const maxVotes = Math.max(...voteResults);
-      optionsToProcess.forEach(option => {
-        const isWinner = option.votants.length === maxVotes;
-        if (vote.currentStep === 1) {
-          option.set('winningOptionStepOne', isWinner);
-        } else {
-          option.set('winningOptionStepTwo', isWinner);
-        }
-      });
+      let topCandidates = optionsToProcess.filter(option => option.votants.length === maxVotes);
 
-      // Prepare for the next step if necessary
-      if (vote.doubleStep && vote.currentStep === 1 && optionsToProcess.some(option => option.winningOptionStepOne)) {
-        vote.currentStep = 2;
-        // Clear winning flags for the next step
-        vote.optionStepTwo.forEach(option => {
-          option.set('winningOptionStepTwo', false);
-        });
-      } else {
+      if (topCandidates.length > 2) {
+        topCandidates = topCandidates.sort(() => 0.5 - Math.random()).slice(0, 2);
+      } else if (topCandidates.length < 2) {
+        const secondMaxVotes = Math.max(...voteResults.filter(vote => vote !== maxVotes));
+        const secondTopCandidates = optionsToProcess.filter(option => option.votants.length === secondMaxVotes);
+
+        topCandidates = topCandidates.concat(secondTopCandidates).slice(0, 2);
+      }
+
+      if (!vote.doubleStep) {
         vote.completed = true;
+        topCandidates.forEach(candidate => candidate.winningOptionStepOne = true);
+      } else if (vote.doubleStep && vote.currentStep === 1) {
+        vote.currentStep = 2;
+        vote.optionStepTwo = topCandidates.map(candidate => ({
+          texte: candidate.texte,
+          votants: [] as Types.ObjectId[], 
+          checked: false,
+          winningOptionStepOne: false,
+          winningOptionStepTwo: false
+        })) as IOption[];
+      } else if (vote.currentStep === 2) {
+        if (topCandidates.length === 1) {
+          vote.completed = true;
+          topCandidates[0].winningOptionStepTwo = true;
+        }else if(topCandidates.length === 2){
+          let topCandidates = optionsToProcess.filter(option => option.votants.length === maxVotes);
+          topCandidates = topCandidates.sort(() => 0.5 - Math.random()).slice(0, 2);
+          vote.completed = true;
+          topCandidates.forEach(candidate => candidate.winningOptionStepTwo = true); 
+        }
       }
     }
-
-    await vote.save();
+  } else {
+    vote.completed = true;
   }
 
+  await vote.save();
   return vote;
 }
 
 
-function calculateResults(options: IOption[]): number[] {
-  return options.map(option => option.votants.length);
-}
-
-function getTotalVotes(results: number[]): number {
-  return results.reduce((acc, current) => acc + current, 0);
-  
-}
 
 
 const checkUserVotedOptions = (vote: IVote, userId: Types.ObjectId): IVote => {
