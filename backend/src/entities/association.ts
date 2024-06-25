@@ -34,7 +34,7 @@ const MemberSchema = new Schema<IMember>({
       'Président', 'Créateur', 'Vice-Président', 'Secrétaire', 'Trésorier', 
       'Membre du Conseil d\'Administration', 'Responsable des Communications', 
       'Bénévole', 'Membre Actif', 'Membre Bienfaiteur', 'Responsable des Événements', 
-      'Coordinateur des Bénévoles', 'Responsable des Partenariats'
+      'Coordinateur des Bénévoles', 'Responsable des Partenariats','Donateur'
     ]
   },
   isBlocked: { type: Boolean, default: false }

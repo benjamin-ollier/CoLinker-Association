@@ -91,6 +91,8 @@ router.get('/userAssociation/username/:username', async (req, res, next) => {
   }
 });
 
+
+
 router.delete('/removeMember/:associationId/:username', async (req, res) => {
   const { associationId, username } = req.params;
 
@@ -189,9 +191,12 @@ router.get('/associationMembers/:associationId', async (req, res, next) => {
       return res.status(404).json({ message: "Association non trouvée." });
     }
     
-    const memberIds = association.member.map(m => m.user);
+    const filteredMembers = association.member.filter(member => member.role !== 'Donateur');
+    const memberIds = filteredMembers.map(m => m.user);
     
-    const users = await User.find({ _id: { $in: memberIds } });
+    const users = await User.find({
+      '_id': { $in: memberIds }
+    }).select('-token -password');
     
     res.json(users);
   } catch (error) {

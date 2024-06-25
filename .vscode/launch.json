@@ -4,6 +4,19 @@
     {
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
+      "name": "nodemon new",
+      "program": "${workspaceFolder}/backend/src",
+      "request": "launch",
+      "restart": true,
+      "runtimeExecutable": "nodemon src/index.ts",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "type": "node"
+    },
+    {
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
       "name": "nodemon",
       "program": "${workspaceFolder}/backend/src/index.ts",
       "request": "launch",

@@ -21,10 +21,9 @@ const VoteList = () => {
           startDate: vote.startDate,
           endDate: vote.endDate,
           completed: vote.completed,
-          type: vote.typeDestinataire,
         }));
 
-        setVotes(mappedVotes); // Update the state with the mapped votes
+        setVotes(mappedVotes);
       } catch (error) {
         console.error('Failed to fetch votes:', error);
       }
