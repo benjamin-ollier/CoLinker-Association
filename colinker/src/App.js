@@ -26,7 +26,6 @@ import AdminVoteForm from "./view/admin/AdminVoteForm";
 import AdminVotes from "./view/admin/AdminVotes";
 import { useAssociation } from './context/AssociationContext';
 import NotSelectedAssociation from "./component/admin/notSelectedAssociation";
-import Cotisation from "./view/admin/Cotisation";
 
 const { Header, Sider, Content } = Layout;
 
@@ -63,7 +62,7 @@ function MainContent({ isAdminMode }) {
     }
   }
 
-  // Routes when an association is selected, includes general and admin routes if in admin mode
+  // Routes when an association is selected, includes both general and admin routes if in admin mode
   return (
     <Routes>
       {generalRoutes}
@@ -78,7 +77,6 @@ function MainContent({ isAdminMode }) {
           <Route path="/admin/activities" element={<Activities />} />
           <Route path="/admin/activity/:id" element={<ActivitiesForm />} />
           <Route path="/admin/files" element={<Files />} />
-          <Route path="/admin/cotisation" element={<Cotisation />} />
         </>
       )}
     </Routes>

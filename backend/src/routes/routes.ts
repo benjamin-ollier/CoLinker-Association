@@ -9,9 +9,9 @@ import notesRoutes from './notesRoutes';
 import taskRoomsRoutes from './taskRoomsRoutes';
 import pluginsRoutes from './pluginsRoutes';
 import activitiesRoutes from './activitiesRoutes';
-import paypalApiRoute from './paypalApiRoute';
-import voteRoute from './voteRoute';
 import donationRoute from './donationRoute';
+import voteRoute from './voteRoute';
+
 const router = express.Router();
 
 router.use('/auth', authRoutes);
@@ -20,7 +20,6 @@ router.use('/ag', agRoutes);
 router.use('/association', associationRoute);
 router.use('/association', associationDashboardRoute);
 router.use('/tasks', tasksRoutes);
-router.use('/paypalApiRoute', paypalApiRoute);
 router.use('/donation', donationRoute);
 router.use('/taskRooms', taskRoomsRoutes);
 router.use('/notes', notesRoutes);

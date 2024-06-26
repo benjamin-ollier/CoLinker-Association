@@ -1,81 +1,25 @@
 import React, { useEffect, useState } from 'react';
-import { Typography, Table } from 'antd';
+import { PayPalScriptProvider, PayPalButtons } from '@paypal/react-paypal-js';
+import { Typography, Spin, Alert, Table } from 'antd';
 import Paypal from '../../component/normal/Paypal';
-import { getDonations } from '../../service/donationService';
+import TransactionTable from '../../component/normal/TransactionTable';
 
 import axios from 'axios';
 
 const { Title } = Typography;
 
-interface Contribution {
-  amount: number;
-  date: string;
-  type: string;
-}
-
-interface DonorContribution {
-  _id: string;
-  username: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  donations: Contribution[];
-}
 
 const Donation: React.FC = () => {
-  const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  const fetchDonations = async () => {
-    setLoading(true);
-    try {
-        const donations = await getDonations("donation"); 
-        setData(donations); 
-    } catch (error) {
-        console.error('Failed to fetch donations', error);
-    }
-    setLoading(false);
-  };
-
-  useEffect(() => {
-    fetchDonations();
-  }, []);
-
-
-  const columns = [
-    { title: 'Username', dataIndex: 'username', key: 'username' },
-    { title: 'Email', dataIndex: 'email', key: 'email' },
-    { title: 'First Name', dataIndex: 'firstName', key: 'firstName' },
-    { title: 'Last Name', dataIndex: 'lastName', key: 'lastName' }
-  ];
-
-  const expandedRowRender = (record: DonorContribution) => {
-    const subColumns = [
-      { title: 'Amount', dataIndex: 'amount', key: 'amount' },
-      { title: 'Type', dataIndex: 'type', key: 'type' },
-      { title: 'Date', dataIndex: 'date', key: 'date', render: (date: string) => new Date(date).toLocaleDateString() }
-    ];
-
-    return <Table columns={subColumns} dataSource={record.donations} pagination={false} />;
-  };
-
-  const handlePaymentSuccess = (details) => {
-    fetchDonations();
-  };
+  const [clientId, setClientId] = useState<string | undefined>(undefined);
+  const [error, setError] = useState<string | null>(null);
 
 
   return (
     <div style={{ maxWidth: 600, margin: '20px auto', textAlign: 'center' }}>
       <Title level={2}>Make a Donation</Title>
-      <Paypal donationType="donation" onPaymentSuccess={handlePaymentSuccess} />
-      <Table
-        className="components-table-demo-nested"
-        columns={columns}
-        expandable={{ expandedRowRender }}
-        dataSource={data}
-        rowKey="_id"
-      />    
-      </div>
+      <Paypal/>
+      <TransactionTable />
+    </div>
   );
 };
 

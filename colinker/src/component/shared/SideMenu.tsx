@@ -6,8 +6,7 @@ import {
   PieChartOutlined,
   UserOutlined,
   AuditOutlined,
-  FolderOutlined,
-  DollarOutlined
+  FolderOutlined
 } from '@ant-design/icons';
 
 const { Sider } = Layout;
@@ -22,8 +21,7 @@ const SideMenu = ({ isAdminMode }) => {
       { label: "Gestion des membres", key: "/admin/userManagement", icon: <UserOutlined /> },
       { label: "Assemblée Générale", key: "/admin/ag", icon: <AuditOutlined /> },
       { label: "Gestion des votes", key: "/admin/vote", icon: <PieChartOutlined /> },
-      { label: "Gestion des fichiers", key: "/admin/files", icon: <FolderOutlined />},
-      { label: "Cotisations", key: "/admin/cotisation", icon: <DollarOutlined />}
+      { label: "Gestion des fichiers", key: "/admin/files", icon: <FolderOutlined />}
     ] : [
       { label: "Home", key: "/home", icon: <DesktopOutlined /> },
       { label: "Mes Associations", key: "/myAssociation", icon: <PieChartOutlined /> },
