@@ -3,24 +3,22 @@ import { GoogleMap, Marker, useJsApiLoader } from '@react-google-maps/api';
 
 const containerStyle = {
   width: '100%',
-  height: '400px'
+  height: '400px',  
 };
 
 const defaultCenter = { lat: 48.8566, lng: 2.3522 };
 
-const MapComponent = ({ onLocationSelect, position }) => {
+const Map = ({ position }) => {
+  useEffect(() => {
+    if (position) {
+      console.log("Position:", position);
+    }
+  });
+
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY || '',
     libraries: ['places'],
   });
-
-  const handleMapClick = (event) => {
-    const newPos = {
-      lat: event.latLng.lat(),
-      lng: event.latLng.lng()
-    };
-    onLocationSelect(newPos);
-  };
 
   if (loadError) {
     console.error("Error loading Google Maps API:", loadError);
@@ -34,13 +32,12 @@ const MapComponent = ({ onLocationSelect, position }) => {
   return (
     <GoogleMap
       mapContainerStyle={containerStyle}
-      center={position || defaultCenter}
+      center={ position}
       zoom={20}
-      onClick={handleMapClick}
     >
       {position && <Marker position={position} />}
     </GoogleMap>
   );
 };
 
-export default MapComponent;
+export default Map;

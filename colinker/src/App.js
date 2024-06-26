@@ -27,6 +27,7 @@ import AdminVotes from "./view/admin/AdminVotes";
 import { useAssociation } from './context/AssociationContext';
 import NotSelectedAssociation from "./component/admin/notSelectedAssociation";
 import Cotisation from "./view/admin/Cotisation";
+import ActivityDetails from "./view/normal/ActivityDetails";
 
 const { Header, Sider, Content } = Layout;
 
@@ -41,7 +42,8 @@ function MainContent({ isAdminMode }) {
     <Route key="donation" path="/donation/:name" element={<Donation />} />,
     <Route key="votes" path="/votes" element={<VoteList />} />,
     <Route key="vote" path="/vote/:id" element={<Vote />} />,
-    <Route key="setting" path="/Réglage" element={<Setting />} />
+    <Route key="setting" path="/Réglage" element={<Setting />} />,
+    <Route key="activityDetails" path="/activityDetails/:name/:id" element={<ActivityDetails />} />
   ];
 
   const adminRoutes = [
