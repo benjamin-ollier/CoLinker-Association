@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Table } from 'antd';
-import { getDonations } from '../../service/donationService'; // Assurez-vous que cette fonction est bien définie et récupère les données comme dans votre exemple JSON
+import { getDonations } from '../../service/donationService';
 import Paypal from '../../component/normal/Paypal';
 
 interface Contribution {
