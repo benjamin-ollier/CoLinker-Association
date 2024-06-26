@@ -3,63 +3,126 @@ import mongoose from 'mongoose';
 import Association from '../entities/association';
 import User from '../entities/user';
 import axios from 'axios';
-import qs from 'qs';
+import Donation from '../entities/donation';
+import { verifyToken } from '../middlewares/authenticate';
 
 const router = express.Router();
 
+router.post('/', verifyToken, async (req: Request, res: Response, next: NextFunction) => {
+  const { amount, type } = req.body;
 
-const PAYPAL_API = 'https://api-m.sandbox.paypal.com';
-const CLIENT_ID = "ARPqW928ZAbruMwiI7UTy9granfNLRbao8Hdsmg2ZIDtn0W2VZHEO8tcrQQRhCwqRbOPIAuHImpp8lGw";
-const CLIENT_SECRET = "EBNhi8ShfL3yIaISv2CFXHnzTx_OlnFkdoLkY852RLsocjQ2EtmV-NGo1mQWlqZAYsbLRwR6BWSyMrM5";
+  if (!(req as any).user || !(req as any).user._id) {
+    return res.status(401).json({ message: 'Unauthorized - No user found' });
+  }
 
-async function getPayPalToken() {
-  const auth = Buffer.from(`${CLIENT_ID}:${CLIENT_SECRET}`).toString('base64');
   try {
-    const response = await axios.post(`${PAYPAL_API}/v1/oauth2/token`, qs.stringify({ grant_type: 'client_credentials' }), {
-      headers: {
-        'Authorization': `Basic ${auth}`,
-        'Content-Type': 'application/x-www-form-urlencoded'
-      }
+    const newDonation = new Donation({
+      donor: (req as any).user._id,
+      amount: amount,
+      type: type
     });
-    return response.data.access_token;
-  } catch (error) {
-    throw new Error('Failed to retrieve PayPal token');
-  }
-}
 
-router.get('/paypal/token', async (req: Request, res: Response, next: NextFunction) => {
+    const savedDonation = await newDonation.save();
+    res.status(201).json(savedDonation);
+  } catch (error) {
+    console.error('Error saving donation:', error);
+    res.status(500).json({ message: 'Error saving donation' });
+  }
+});
+
+router.get('/:type', async (req, res) => {
+  const { type } = req.params;
   try {
-    const token = await getPayPalToken();
-    res.json({ token });
+    const donations = await Donation.aggregate([
+      { $match: { type: type } },
+      {
+        $lookup: {
+          from: "users",
+          localField: "donor",
+          foreignField: "_id",
+          as: "donorDetails"
+        }
+      },
+      { $unwind: "$donorDetails" },
+      {
+        $group: {
+          _id: "$donorDetails._id",
+          username: { $first: "$donorDetails.username" },
+          email: { $first: "$donorDetails.email" },
+          firstName: { $first: "$donorDetails.firstName" },
+          lastName: { $first: "$donorDetails.lastName" },
+          // Ajoutez d'autres champs nécessaires de l'utilisateur ici
+          donations: {
+            $push: {
+              amount: "$amount",
+              date: "$date",
+              type: "$type"
+            }
+          }
+        }
+      },
+      {
+        $project: {
+          _id: 1,
+          username: 1,
+          email: 1,
+          firstName: 1,
+          lastName: 1,
+          // Assurez-vous d'inclure tous les champs de l'utilisateur que vous voulez renvoyer
+          donations: 1
+        }
+      }
+    ]);
+
+    res.json(donations);
   } catch (error) {
-    next(error);
+    console.error('Failed to fetch donations by type:', error);
+    res.status(500).json({ message: 'error message' });
   }
 });
 
 
-router.get('/paypal/transactions', async (req: Request, res: Response, next: NextFunction) => {
-  const accessToken = await getPayPalToken();
-  const startDate = '2023-01-01T00:00:00Z';
-  const endDate = new Date().toISOString();
-  
-  const url = `https://api-m.sandbox.paypal.com/v1/reporting/transactions?start_date=2024-05-01T00:00:00-0700&end_date=${endDate}&fields=all`;
-    try {
-        const response = await axios.get(url, {
-            headers: {
-                'Authorization': `Bearer ${accessToken}`,
-                'Content-Type': 'application/json'
-            }
-        });
-        return res.json(response.data);
-        
-    } catch (error) {
-        console.error('Error fetching transactions:');
-        throw error;
-    }
+// router.get('/:id', async (req, res) => {
+//   try {
+//       const donation = await Donation.findById(req.params.id).populate('donor');
+//       if (donation) {
+//           res.json(donation);
+//       } else {
+//           res.status(404).json({ message: 'Donation not found' });
+//       }
+//   } catch (error) {
+//     res.status(500).json({ message: 'error message' });
+//   }
+// });
+
+router.put('/:id', async (req, res) => {
+  const { amount, type } = req.body;
+  try {
+      const donation = await Donation.findById(req.params.id);
+      if (donation) {
+          donation.amount = amount || donation.amount;
+          donation.type = type || donation.type;
+          const updatedDonation = await donation.save();
+          res.json(updatedDonation);
+      } else {
+          res.status(404).json({ message: 'Donation not found' });
+      }
+  } catch (error) {
+    res.status(500).json({ message: 'error message' });
+  }
 });
 
-
-
-
+router.delete('/:id', async (req, res) => {
+  try {
+      const donation = await Donation.findByIdAndDelete(req.params.id);
+      if (donation) {
+          res.json({ message: 'Donation deleted successfully' });
+      } else {
+          res.status(404).json({ message: 'Donation not found' });
+      }
+  } catch (error) {
+      res.status(500).json({ message: 'error message' });
+  }
+});
 
 export default router;
