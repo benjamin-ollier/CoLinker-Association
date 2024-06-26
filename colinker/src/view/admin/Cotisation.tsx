@@ -1,11 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import { Typography, Table } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { Table } from 'antd';
+import { getDonations } from '../../service/donationService'; // Assurez-vous que cette fonction est bien définie et récupère les données comme dans votre exemple JSON
 import Paypal from '../../component/normal/Paypal';
-import { getDonations } from '../../service/donationService';
-
-import axios from 'axios';
-
-const { Title } = Typography;
 
 interface Contribution {
   amount: number;
@@ -22,25 +18,18 @@ interface DonorContribution {
   donations: Contribution[];
 }
 
-const Donation: React.FC = () => {
-  const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(true);
 
-  const fetchDonations = async () => {
-    setLoading(true);
-    try {
-        const donations = await getDonations("donation"); 
-        setData(donations); 
-    } catch (error) {
-        console.error('Failed to fetch donations', error);
-    }
-    setLoading(false);
+const Cotisation = () => {
+  const [data, setData] = useState<DonorContribution[]>([]);
+
+  const fetchData = async () => {
+    const contributions = await getDonations("cotisation");
+    setData(contributions);
   };
 
   useEffect(() => {
-    fetchDonations();
+    fetchData();
   }, []);
-
 
   const columns = [
     { title: 'Username', dataIndex: 'username', key: 'username' },
@@ -60,23 +49,22 @@ const Donation: React.FC = () => {
   };
 
   const handlePaymentSuccess = (details) => {
-    fetchDonations();
+    fetchData()
   };
 
-
   return (
-    <div style={{ maxWidth: 600, margin: '20px auto', textAlign: 'center' }}>
-      <Title level={2}>Make a Donation</Title>
-      <Paypal donationType="donation" onPaymentSuccess={handlePaymentSuccess} />
+    <div>
+      <h1 className="font-bold text-center m-auto">Cotisations</h1>
+      <Paypal donationType="cotisation" onPaymentSuccess={handlePaymentSuccess} />
       <Table
         className="components-table-demo-nested"
         columns={columns}
         expandable={{ expandedRowRender }}
         dataSource={data}
         rowKey="_id"
-      />    
-      </div>
+      />
+    </div>
   );
 };
 
-export default Donation;
+export default Cotisation;
