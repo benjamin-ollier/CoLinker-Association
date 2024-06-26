@@ -12,7 +12,7 @@ const postAssociation = async (data) => {
   }
 };
 
-const putDashboardAssociation = async (data) => {
+const createDashboardAssociation = async (data) => {
   try {
     const response = await api.put(`/association/dashboard`, data);
     if (response.data) {
@@ -174,8 +174,19 @@ const getAssociationWithName = async (name) => {
   }
 };
 
+export const getAssociationWithId = async (id) => {
+  try {
+    const response = await api.get(`/association/getAssociationWithId/${id}`);
+    if (response.data) {
+      return response.data;
+    }
+  } catch (error) {
+    throw new Error("post association failed");
+  }
+};
 
 
 
 
-export { getAssociationWithName, getAllAsoociation, postAssociation, putDashboardAssociation, getUserAdminAssociation, getUserAssociation, getMembersNotInAssociation,getAssociationMembers, addUserToAssociation, removeUser, editUserInAssociation, getAssociationFiles, deleteAssociationFile, downloadAssociationFile, uploadAssociationFile, createAssociationDirectory };
+
+export { getAssociationWithName, getAllAsoociation, postAssociation, createDashboardAssociation, getUserAdminAssociation, getUserAssociation, getMembersNotInAssociation,getAssociationMembers, addUserToAssociation, removeUser, editUserInAssociation, getAssociationFiles, deleteAssociationFile, downloadAssociationFile, uploadAssociationFile, createAssociationDirectory };

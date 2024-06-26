@@ -113,7 +113,7 @@ const VoteForm = () => {
       <Form form={form} layout="vertical" onFinish={handleSaveData}>
       <Form.Item
           name="ag"
-          label="Select an Option"
+          label="Selectionner une assemblée générale"
           rules={[{ required: true, message: 'Please select an option!' }]}
       >
           <Select onChange={handleSelectChange} placeholder="Select an option">

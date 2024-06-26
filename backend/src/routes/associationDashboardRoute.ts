@@ -6,22 +6,18 @@ import {uploadImageToFirebase} from '../share/uploadImageToFirebase';
 
 const router = express.Router();
 const multer = require('multer');
-const upload = multer();
+const upload = multer({ storage: multer.memoryStorage() });
 
 router.put('/dashboard', upload.single('image'), async (req, res) => {
-  const { id, informationDescription, informationTitle, widgets } = req.body;
-  let imageUrl;
-
+  const { id, informationDescription, informationTitle, widgets, widgetTitle } = req.body;
   try {
-    if (req.body.image.file) {
-      imageUrl = await uploadImageToFirebase(req.body.image.file.buffer, req.body.image.file.originalname);
-    }
+  
 
     let association = await Association.findByIdAndUpdate(id, {
       informationDescription,
       informationTitle,
-      image: imageUrl || '',
-      widgets
+      widgetTitle,
+      widgets: JSON.parse(widgets)
     }, { new: true, runValidators: true });
 
     if (!association) {
@@ -32,9 +28,11 @@ router.put('/dashboard', upload.single('image'), async (req, res) => {
       message: 'Association updated successfully',
       association
     });
+    res.status(200);
   } catch (error) {
+    console.error("Error updating association:", error);
     res.status(500).json({
-      message: 'Error updating association'    
+      message: 'Error updating association'
     });
   }
 });

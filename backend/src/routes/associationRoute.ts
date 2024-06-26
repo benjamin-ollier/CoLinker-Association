@@ -498,4 +498,20 @@ router.delete('/files/delete/:associationId/:filename', async (req, res) => {
   }
 });
 
+router.get('/getAssociationWithId/:associationId', async (req, res, next) => {
+  const { associationId } = req.params;
+
+  try {
+    const association = await Association.findById(associationId);
+    if (!association) {
+      return res.status(404).json({ message: "Association non trouvée." });
+    }
+
+    res.json(association);
+  } catch (error) {
+    console.error("Erreur lors de la récupération de l'association :", error);
+    next(error);
+  }
+});
+
 export default router;

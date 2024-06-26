@@ -8,8 +8,6 @@ interface IMember {
 
 interface IWidget {
   title: string;
-  location: string
-  image: string
 }
 
 interface IAssociation extends Document {
@@ -19,7 +17,7 @@ interface IAssociation extends Document {
   informationTitle?: string;
   member: IMember[];
   image: string;
-  widgetTitle?: string;
+  widgetTitle: string;
   widgets: IWidget[];
   paypal_CLIENT_ID:string;
   paypal_CLIENT_SECRET:string;
@@ -42,13 +40,12 @@ const MemberSchema = new Schema<IMember>({
 
 const WidgetSchema = new Schema<IWidget>({
   title: { type: String, required: true },
-  location: { type: String, required: true},
-  image: { type: String, required: true}
 });
 
 const AssociationSchema = new Schema<IAssociation>({
   name: { type: String, required: true },
   siret: { type: String, required: true },
+  widgetTitle: { type: String, required: false },
   informationDescription: { type: String, required: false },
   informationTitle: { type: String, optional: true, required:false },
   member: [MemberSchema],
