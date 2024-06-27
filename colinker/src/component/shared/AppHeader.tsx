@@ -1,8 +1,9 @@
-import React , { useState} from 'react';
-import { Layout, Menu, Dropdown, Button } from 'antd';
-import { DownOutlined, SettingOutlined, LogoutOutlined } from '@ant-design/icons';
+import React , { useState, useEffect } from 'react';
+import { Layout, Menu, Dropdown, Button, Tooltip, Badge } from 'antd';
+import { DownOutlined, SettingOutlined, LogoutOutlined, BellOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import AssociationSelector from '../admin/AssociationSelector';
+import { getUserNotifications } from '../../service/userService';
 
 const { Header } = Layout;
 
@@ -14,6 +15,26 @@ interface AppHeaderProps {
 
 const AppHeader: React.FC<AppHeaderProps & {onAdminClick: () => void}> = ({ title, logoSrc, isAdminMode, onAdminClick }) => {
   const navigate = useNavigate();
+  const [notifications, setNotifications] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      const username = localStorage.getItem('username');
+      if (username) {
+        try {
+          const newNotifications = await getUserNotifications(username);
+          setNotifications(newNotifications || []);
+        } catch (error) {
+          console.error('Error fetching notifications:', error);
+        }
+      }
+    };
+
+    fetchNotifications();
+  }, []);
+
+  const hasNotification = () => notifications.length > 0
+
   const handleAdminClick = () => {
     onAdminClick();
   };
@@ -48,6 +69,17 @@ const AppHeader: React.FC<AppHeaderProps & {onAdminClick: () => void}> = ({ titl
     navigate('/Réglage');
   };
 
+  const notifMenu = (
+    <Menu>
+      {hasNotification() ? (
+        notifications.map((notification, index) => (
+          <Menu.Item key={index}>{notification.message}</Menu.Item>
+        ))
+      ) : (
+        <Menu.Item key="0">Aucune notification</Menu.Item>
+      )}
+    </Menu>
+  )
 
   const menu = (
     <Menu>
@@ -70,6 +102,11 @@ const AppHeader: React.FC<AppHeaderProps & {onAdminClick: () => void}> = ({ titl
       </div>
       <div className="flex items-center space-x-4">
         {isAdminMode && <AssociationSelector />}
+        <Dropdown overlay={notifMenu} trigger={['click']} placement="bottomRight">
+          <Badge dot={hasNotification()} offset={[-5, 5]}>
+            <Button shape="circle" icon={<BellOutlined />} />
+          </Badge>
+        </Dropdown>
         <Button type="primary" onClick={handleAdminClick}>Administration</Button>
         <Dropdown overlay={menu} trigger={['click']}>
           <Button type="link" className="flex items-center space-x-1">

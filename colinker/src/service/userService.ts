@@ -55,6 +55,17 @@ const getUserInfo = async (username: string) => {
   }
 };
 
+const getUserNotifications = async (username: string) => {
+  try {
+    const response = await api.get(`/user/notifications/${username}`);
+    if (response.data) {
+      return response.data.notifications;
+    }
+  } catch (error) {
+    throw new Error("Registration failed");
+  }
+}
 
 
-export { getAllAG, getAGById, createAG, updateAG, getUserInfo };
+
+export { getAllAG, getAGById, createAG, updateAG, getUserInfo, getUserNotifications };
