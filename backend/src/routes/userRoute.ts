@@ -47,7 +47,7 @@ router.get('/notifications/:username', async (req: Request, res: Response, next:
     const oneMonthAgo = new Date(now);
     oneMonthAgo.setMonth(now.getMonth() - 1);
 
-    const donations = await Donation.find({ donor: user._id });
+    const donations = await Donation.find({ donor: user._id, type: "cotisation"});
     
     for (const donation of donations) {
       if (donation.date < oneMonthAgo) {
