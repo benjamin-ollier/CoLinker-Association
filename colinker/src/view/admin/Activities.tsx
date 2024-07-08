@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Input, Table, Tag, Space } from 'antd';
-import { PlusOutlined, SearchOutlined } from '@ant-design/icons';
+import { Button, Table, Tag, Space, Input } from 'antd';
+import { PlusOutlined, SearchOutlined ,AudioOutlined} from '@ant-design/icons';
 import { getActivitiesByAssociationId } from '../../service/activitiesService';
 import { format, parseISO } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { useAssociation } from '../../context/AssociationContext';
 import LocationMap from '../../component/admin/LocationMap';
+import type { SearchProps } from 'antd/es/input/Search';
 
 interface ActivityData {
   key: React.Key;
@@ -22,11 +23,11 @@ const Activities: React.FC = () => {
   const { selectedAssociationId } = useAssociation();
   const [data, setData] = useState<ActivityData[]>([]);
 
+
   useEffect(() => {
-    if (selectedAssociationId) {
-      fetchData();
-    }
-  }, [selectedAssociationId]);
+    fetchData();
+  }, [selectedAssociationId]); 
+
 
   const fetchData = async () => {
     if (selectedAssociationId) {
@@ -44,6 +45,7 @@ const Activities: React.FC = () => {
       }
     }
   };
+  
 
   const columns = [
     {
@@ -115,6 +117,22 @@ const Activities: React.FC = () => {
     navigate('/admin/activity/new');
   };
 
+  const handleSearch = async (value: string) => {
+    if (selectedAssociationId && value.trim() !== '') {
+      try {
+        const response = await getActivitiesByAssociationId(selectedAssociationId);
+        const filteredData = response.filter((activity: ActivityData) =>
+          activity.title.toLowerCase().includes(value.toLowerCase())
+        );
+        setData(filteredData);
+      } catch (error) {
+        console.error('Erreur lors du filtrage des activités:', error);
+      }
+    } else {
+      fetchData();
+    }
+  };
+
   return (
     <div>
       <div className='m-10'>
@@ -122,7 +140,12 @@ const Activities: React.FC = () => {
       </div>
       <div className='grid place-content-end m-10'>
         <Space>
-          <Input placeholder="Recherche..." prefix={<SearchOutlined />} />
+        <Input.Search
+            placeholder="Recherche..."
+            enterButton={<SearchOutlined />}
+            size="large"
+            onSearch={handleSearch}
+          />
           <Button type="primary" icon={<PlusOutlined />} onClick={handleCreateClick}>
             Créer une nouvelle activité
           </Button>

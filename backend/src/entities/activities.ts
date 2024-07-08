@@ -1,6 +1,7 @@
 import mongoose, { Document, Schema, Types } from 'mongoose';
 
 interface IActivity extends Document {
+  _id: Types.ObjectId;
   association: Types.ObjectId;
   title: string;
   description: string;
