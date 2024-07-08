@@ -19,12 +19,16 @@ const HomePage = () => {
 
   const handleSearch = async (value: string) => {
     try {
-      const data = await getAllAsoociation();
-      setAssociations(data);
+        const data = await getAllAsoociation();
+        const filteredData = data.filter(association =>
+            association.name.toLowerCase().includes(value.toLowerCase())
+        );
+        setAssociations(filteredData);
     } catch (error) {
-      message.error('Failed to fetch associations: ');
+        message.error('Failed to fetch associations: ');
     }
-  };
+};
+
 
   const fetchAssociations = async () => {
     try {

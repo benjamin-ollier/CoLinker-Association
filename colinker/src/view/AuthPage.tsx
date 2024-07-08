@@ -7,16 +7,24 @@ const AuthPage = () => {
 
   return (
     <div className="flex min-h-screen">
-      <div className="flex-1 flex justify-center items-center bg-blue-500" style={{ backgroundImage: `url('/creation_association.jpeg')`, backgroundSize: 'cover', backgroundPosition: 'center center', backgroundRepeat: 'no-repeat' }}>
-      </div>
-      <div className="flex-1 flex justify-center items-center bg-white">
-        {isLoginView ? (
-          <LoginForm onRegisterClick={() => setIsLoginView(false)} />
-        ) : (
-          <RegisterForm onLoginClick={() => setIsLoginView(true)} />
-        )}
-      </div>
-    </div>
+  <div className="w-3/5 flex justify-center items-center bg-white" 
+       style={{ 
+         backgroundImage: `url('/allpeople.jpg')`, 
+         backgroundSize: 'cover', 
+         backgroundPosition: 'center center', 
+         backgroundRepeat: 'no-repeat',
+         height: '100vh' 
+       }}>
+  </div>
+  <div className="w-2/5 flex justify-center items-center bg-white">
+    {isLoginView ? (
+      <LoginForm onRegisterClick={() => setIsLoginView(false)} />
+    ) : (
+      <RegisterForm onLoginClick={() => setIsLoginView(true)} />
+    )}
+  </div>
+</div>
+
   );
 };
 

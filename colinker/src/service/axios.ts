@@ -22,7 +22,7 @@ api.interceptors.request.use(function (config) {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response.status === 401 || error.response.status === 403) {
+    if (error.response.status === 401) {
       localStorage.removeItem('token');
       window.location.href = '/login';
     }
@@ -40,7 +40,7 @@ api.interceptors.response.use(
   (response) => {
     const method = response.config?.method;
     if (method && method !== 'get') {
-      if(method == 'post'){
+      if(method == 'post' || method == 'put') {
         const messageText = `Les modifications ont bien été apportés`;
         message.success(messageText);
       }
