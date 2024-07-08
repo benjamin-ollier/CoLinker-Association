@@ -17,12 +17,12 @@ export const AssociationProvider: React.FC<{ children: ReactNode }> = ({ childre
     const fetchAssociations = async () => {
       if(localStorage.getItem('username')){
         try {
-          const response = await getUserAssociation(localStorage.getItem('username'));
-          const formattedResponse = response.map(assoc => ({
-            id: assoc._id,
-            name: assoc.name
-          }));
-          setAssociations(formattedResponse);
+          //const response = await getUserAssociation(localStorage.getItem('username'));
+          // const formattedResponse = response.map(assoc => ({
+          //   id: assoc._id,
+          //   name: assoc.name
+          // }));
+          //setAssociations(formattedResponse);
         } catch (error) {
           console.error("Erreur lors de la récupération des associations:", error);
           setAssociations([]);

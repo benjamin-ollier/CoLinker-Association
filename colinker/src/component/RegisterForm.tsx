@@ -9,7 +9,6 @@ const RegisterForm = ({ onLoginClick }) => {
   const onFinish = async (values) => {
     try {
       const response = await register(values);
-      console.log(response);
       
       if (response.message == "Registration successful") {
         const { username, password } = values;
