@@ -2,6 +2,7 @@ import logo from "./logo.svg";
 import React, { useState, useEffect } from 'react';
 import SideMenu from "./component/shared/SideMenu.tsx";
 import AppHeader from "./component/shared/AppHeader.tsx";
+import Chatbot from "./component/shared/Chatbot.tsx";
 import { Layout } from "antd";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import HomePage from "./view/normal/HomePage.tsx";
@@ -119,6 +120,7 @@ function App() {
             <SideMenu isAdminMode={isAdminMode} />
             <Content>
             <MainContent isAdminMode={isAdminMode} />
+            <Chatbot />
             </Content>
           </Layout>
         </Layout>
