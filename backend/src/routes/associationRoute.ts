@@ -353,6 +353,72 @@ router.post('/files/makedir/:associationId/:directoryname', async (req, res, nex
   }
 })
 
+router.post('/files/upload/images/:associationId', upload.single('file'), async (req, res, next) => {
+  try {
+    const s3Client = new S3Client({
+      region: AWS_REGION,
+      credentials: {
+        accessKeyId: AWS_ACCESS_KEY_ID!,
+        secretAccessKey: AWS_ACCESS_KEY_SECRET!,
+      },
+    });
+
+    if (req.file) {
+      const { associationId } = req.params;
+      const association = await Association.findById(associationId);
+      const image = association ? association.image : null;
+
+      const fileStream = Readable.from(req.file.buffer);
+
+      try {
+        if (association) {
+          association.image = req.file.originalname;
+          await association.save();
+        }
+      } catch(e) {
+        console.error(e);
+      }
+
+      const deleteParams = {
+        Bucket: 'projet-ecole-ong',
+        Key: 'images/' + associationId + '/' + image,
+      };
+
+      try {
+        await s3Client.send(new DeleteObjectCommand(deleteParams));
+      } catch (err) {
+        console.error('Error deleting previous file:', err);
+      }
+
+      const params = {
+        Bucket: 'projet-ecole-ong',
+        Key: 'images/' + associationId + "/" + req.file.originalname,
+        Body: fileStream,
+        ContentType: req.file.mimetype,
+      }
+
+      try {
+        const upload = new Upload({
+          client: s3Client,
+          parallelUploadSize: 1024 * 1024 * 5,
+          params,
+          parallelUploadCount: 5
+        } as Options);
+
+        await upload.done();
+        console.log('File uploaded successfully');
+        res.status(200).send('File uploaded');
+      } catch (err) {
+        console.error(err);
+        res.status(500).send('Failed to upload file');
+      }
+    }
+
+  } catch (e) {
+    next(e)
+  }
+});
+
 router.post('/files/upload/:associationId/:folderName', upload.single('file'), async (req, res, next) => {
   try {
     const s3Client = new S3Client({
@@ -508,6 +574,22 @@ router.get('/getAssociationWithId/:associationId', async (req, res, next) => {
     }
 
     res.json(association);
+  } catch (error) {
+    console.error("Erreur lors de la récupération de l'association :", error);
+    next(error);
+  }
+});
+
+router.get('/getAssociationImage/:associationId', async (req, res, next) => {
+  const { associationId } = req.params;
+
+  try {
+    const association = await Association.findById(associationId);
+    if (!association) {
+      return res.status(404).json({ message: "Association non trouvée." });
+    }
+
+    res.send(association.image);
   } catch (error) {
     console.error("Erreur lors de la récupération de l'association :", error);
     next(error);

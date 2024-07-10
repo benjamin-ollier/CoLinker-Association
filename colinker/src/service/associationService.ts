@@ -64,6 +64,18 @@ const deleteAssociationFile = async (associationId, filename) => {
   }
 }
 
+const uploadAssociationImage = async (associationId, formData) => {
+  try {
+    const url = `/association/files/upload/images/${associationId}`
+    const response = await api.post(url, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+    return response.status;
+  } catch (error) {
+    console.error("upload association file failed");
+  }
+}
+
 const uploadAssociationFile = async (associationId, formData, folderName?: string) => {
   try {
     const url = folderName ? `/association/files/upload/${associationId}/${folderName}` : `/association/files/upload/${associationId}`
@@ -185,8 +197,17 @@ export const getAssociationWithId = async (id) => {
   }
 };
 
+export const getAssociationImage = async (id) => {
+  try {
+    const response = await api.get(`/association/getAssociationImage/${id}`);
+    if (response.data) {
+      return response.data;
+    }
+  } catch (error) {
+    throw new Error("get association image failed");
+  }
+}
 
 
 
-
-export { getAssociationWithName, getAllAsoociation, postAssociation, createDashboardAssociation, getUserAdminAssociation, getUserAssociation, getMembersNotInAssociation,getAssociationMembers, addUserToAssociation, removeUser, editUserInAssociation, getAssociationFiles, deleteAssociationFile, downloadAssociationFile, uploadAssociationFile, createAssociationDirectory };
+export { getAssociationWithName, getAllAsoociation, postAssociation, createDashboardAssociation, getUserAdminAssociation, getUserAssociation, getMembersNotInAssociation,getAssociationMembers, addUserToAssociation, removeUser, editUserInAssociation, getAssociationFiles, deleteAssociationFile, downloadAssociationFile, uploadAssociationFile, uploadAssociationImage, createAssociationDirectory };

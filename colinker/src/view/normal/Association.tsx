@@ -9,10 +9,11 @@ import { useNavigate } from 'react-router-dom';
 const { Title } = Typography;
 
 interface Association {
+  _id: any;
   name: string;
   description: string;
   siret?: string;
-  imageURL: string;
+  image: string;
   widgets: Array<{ title: string, _id: string }>;
   informationDescription: string;
   informationTitle: string;
@@ -75,11 +76,8 @@ const AssociationPage = () => {
   return (
     <div style={{ textAlign: 'center', marginTop: '50px' }}>
       <Title level={2}>{association.name}</Title>
-      <Image
-        width={200}
-        src={association.imageURL}
-        placeholder={<Image preview={false} src="https://via.placeholder.com/200" style={{ width: 200 }} />}
-      />
+      <div className="w-full h-80"
+        style={{backgroundPosition: "center", background: `url("https://projet-ecole-ong.s3.eu-west-3.amazonaws.com/images/${association._id}/${association.image}")`}}></div>
       <div className="bg-[#c0dbfa] p-1">
         <Row justify="center" gutter={16} className="mx-2">
           <Col>

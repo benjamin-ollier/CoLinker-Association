@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Form, Input, Button, Card, UploadProps, Upload } from 'antd';
-import { UploadOutlined, DeleteOutlined } from '@ant-design/icons';
-import { createDashboardAssociation, getAssociationWithId } from '../../service/associationService';
+import { Form, Input, Button, Card, message } from 'antd';
+import { FileAddOutlined, DeleteOutlined } from '@ant-design/icons';
+import { createDashboardAssociation, getAssociationImage, getAssociationWithId, uploadAssociationImage } from '../../service/associationService';
 import { useAssociation } from '../../context/AssociationContext';
 
 interface IWidget {
@@ -12,12 +12,14 @@ const DashboardManagement = () => {
   const [widgets, setWidgets] = useState<IWidget[]>([]);
   const [form] = Form.useForm();
   const { setSelectedAssociationId, selectedAssociationId } = useAssociation();
+  const [backgroundImage, setBackgroundImage] = useState("");
   const [fileList, setFileList] = useState([]);
 
 
   useEffect(() => {
     if (selectedAssociationId) {
       fetchAssociationDetails(selectedAssociationId);
+      fetchAssociationImage(selectedAssociationId);
     }
   }, [selectedAssociationId]);
 
@@ -43,6 +45,17 @@ const DashboardManagement = () => {
       console.error("Erreur lors de la récupération des détails de l'association:", error);
     }
   };
+
+  const fetchAssociationImage = async (assoId) => {
+    try {
+      const data = await getAssociationImage(assoId);
+      if (data) {
+        setBackgroundImage(`https://projet-ecole-ong.s3.eu-west-3.amazonaws.com/images/${selectedAssociationId}/${data} `);
+      }
+    } catch(e) {
+      console.error("could not get association image");
+    }
+  }
 
 
   const onFinish = async () => {
@@ -94,22 +107,35 @@ const DashboardManagement = () => {
     setWidgets(updatedWidgets);
   };
 
+  const handleImageUpload = async (e) => {
+    e.preventDefault();
+    try {
+      const file = e.target.files[0]
+      if (file.size > (10 * 1024 * 1024)) { // 10MB size limitation
+        message.error("Vous ne pouvez importer que des fichiers de 9 Mo maximum.");
+        return
+      }
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      let responseStatus = await uploadAssociationImage(selectedAssociationId, formData);
+      if (responseStatus === 200) {
+        setBackgroundImage(`https://projet-ecole-ong.s3.eu-west-3.amazonaws.com/images/${selectedAssociationId}/${file.name}`);
+      }
+    } catch (error) {
+      console.error('Failed to upload file', error);
+    }
+  }
 
   return (
     <div className="container mx-auto px-4 py-5">
       <Form form={form} layout="vertical" onFinish={onFinish}>
         <h2 className="text-2xl font-bold mb-3">Image de fond</h2>
-        {/* <Form.Item name="image" label="" valuePropName="fileList" getValueFromEvent={handleFileChange}>
-          <Upload
-            listType="picture"
-            beforeUpload={() => false}
-            onRemove={() => setFileList([])}
-            onChange={handleFileChange}
-            maxCount={1}
-          >
-            <Button icon={<UploadOutlined />}>Sélectionner une image</Button>
-          </Upload>
-        </Form.Item> */}
+        <img className="w-32" src={backgroundImage} />
+        <label className='rounded-lg mx-5 p-2 bg-white border hover:cursor-pointer hover:bg-blue'>
+          <FileAddOutlined /> Importer un fichier
+          <input style={{display: "none"}} type="file" onChange={handleImageUpload} />
+        </label>
         <div className="mt-10">
           <h2 className="text-2xl font-bold mb-3">Widgets</h2>
           <Form.Item name="widgetTitle" label="Titre">
