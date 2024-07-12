@@ -28,6 +28,7 @@ import { useAssociation } from './context/AssociationContext';
 import NotSelectedAssociation from "./component/admin/notSelectedAssociation";
 import Cotisation from "./view/admin/Cotisation";
 import ActivityDetails from "./view/normal/ActivityDetails";
+import { useLocation } from 'react-router-dom';
 
 const { Header, Sider, Content } = Layout;
 
@@ -90,6 +91,7 @@ function MainContent({ isAdminMode }) {
 
 
 function App() {
+  const location = useLocation();
   const [isAdminMode, setIsAdminMode] = useState(false);
 
   const changeAdminMode = () => {
@@ -97,6 +99,13 @@ function App() {
     localStorage.setItem('isAdminMode', JSON.stringify(isAdminMode));
 
   };
+
+  useEffect(() => {
+    if (location.pathname === '/Home') {
+      setIsAdminMode(false);
+    }
+  }, [location]);
+
 
   useEffect(() => {
     localStorage.setItem('isAdminMode', JSON.stringify(isAdminMode));
