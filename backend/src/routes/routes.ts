@@ -12,9 +12,13 @@ import activitiesRoutes from './activitiesRoutes';
 import paypalApiRoute from './paypalApiRoute';
 import voteRoute from './voteRoute';
 import donationRoute from './donationRoute';
+import { verifyToken } from '../middlewares/authenticate';
 const router = express.Router();
 
 router.use('/auth', authRoutes);
+
+router.use(verifyToken);
+
 router.use('/user', userRoutes);
 router.use('/ag', agRoutes);
 router.use('/association', associationRoute);

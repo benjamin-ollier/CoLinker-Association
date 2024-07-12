@@ -33,4 +33,25 @@ const verifyToken = (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
+const verifyUserBlock = async (req: Request, res: Response, next: NextFunction) => {
+  if (!(req as any).user) {
+    return res.status(400).json({ message: 'User data not available in the request' });
+  }
+
+  try {
+    const user: IUser = (req as any).user;
+    
+    if (user.bloqued) {
+      return res.status(403).json({ message: 'Account is blocked. Contact support for more information.' });
+    }
+    
+    next();
+  } catch (error) {
+    res.status(500).json({ message: 'Server error during block check', error });
+  }
+};
+
+export { verifyUserBlock };
+
+
 export { verifyToken };

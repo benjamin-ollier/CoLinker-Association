@@ -8,6 +8,7 @@ import User from '../entities/user';
 import { DeleteObjectCommand, GetObjectCommand, ListObjectsCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { Options, Upload } from '@aws-sdk/lib-storage';
 import path from 'node:path';
+import { verifyToken,verifyUserBlock } from '../middlewares/authenticate';
 
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
@@ -16,7 +17,7 @@ const AWS_REGION = process.env.AWS_REGION
 const AWS_ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID
 const AWS_ACCESS_KEY_SECRET = process.env.AWS_ACCESS_KEY_SECRET
 
-router.post('/', async (req, res, next) => {
+router.post('/',verifyUserBlock,verifyToken, async (req, res, next) => {
   try {
     const { username, name, siret, description } = req.body;
 
@@ -93,7 +94,7 @@ router.get('/userAssociation/username/:username', async (req, res, next) => {
 
 
 
-router.delete('/removeMember/:associationId/:username', async (req, res) => {
+router.delete('/removeMember/:associationId/:username',verifyUserBlock,verifyToken, async (req, res) => {
   const { associationId, username } = req.params;
 
   try {
@@ -144,7 +145,7 @@ router.get('/membersNotInAssociation/:associationId', async (req, res) => {
 });
 
 
-router.post('/addMember/:associationId', async (req, res, next) => {
+router.post('/addMember/:associationId',verifyUserBlock,verifyToken, async (req, res, next) => {
   const { associationId } = req.params;
   const { userId, role } = req.body;
 
@@ -204,7 +205,7 @@ router.get('/associationMembers/:associationId', async (req, res, next) => {
   }
 });
 
-router.post('/addUserToAssociation', async (req, res, next) => {
+router.post('/addUserToAssociation',verifyUserBlock,verifyToken, async (req, res, next) => {
   try {
     const { associationId, userId } = req.body;
 
@@ -240,7 +241,7 @@ router.post('/addUserToAssociation', async (req, res, next) => {
   }
 });
 
-router.patch('/editMember/:associationId/:userId', async (req, res) => {
+router.patch('/editMember/:associationId/:userId',verifyUserBlock,verifyToken, async (req, res) => {
   const { associationId, userId } = req.params;
   const { role, isBlocked } = req.body;
 
@@ -327,7 +328,7 @@ router.get('/files/list/:associationId', async (req, res, next) => {
   }
 });
 
-router.post('/files/makedir/:associationId/:directoryname', async (req, res, next) => {
+router.post('/files/makedir/:associationId/:directoryname',verifyUserBlock,verifyToken, async (req, res, next) => {
   try {
     const { associationId, directoryname } = req.params;
 
@@ -353,73 +354,8 @@ router.post('/files/makedir/:associationId/:directoryname', async (req, res, nex
   }
 })
 
-router.post('/files/upload/images/:associationId', upload.single('file'), async (req, res, next) => {
-  try {
-    const s3Client = new S3Client({
-      region: AWS_REGION,
-      credentials: {
-        accessKeyId: AWS_ACCESS_KEY_ID!,
-        secretAccessKey: AWS_ACCESS_KEY_SECRET!,
-      },
-    });
 
-    if (req.file) {
-      const { associationId } = req.params;
-      const association = await Association.findById(associationId);
-      const image = association ? association.image : null;
-
-      const fileStream = Readable.from(req.file.buffer);
-
-      try {
-        if (association) {
-          association.image = req.file.originalname;
-          await association.save();
-        }
-      } catch(e) {
-        console.error(e);
-      }
-
-      const deleteParams = {
-        Bucket: 'projet-ecole-ong',
-        Key: 'images/' + associationId + '/' + image,
-      };
-
-      try {
-        await s3Client.send(new DeleteObjectCommand(deleteParams));
-      } catch (err) {
-        console.error('Error deleting previous file:', err);
-      }
-
-      const params = {
-        Bucket: 'projet-ecole-ong',
-        Key: 'images/' + associationId + "/" + req.file.originalname,
-        Body: fileStream,
-        ContentType: req.file.mimetype,
-      }
-
-      try {
-        const upload = new Upload({
-          client: s3Client,
-          parallelUploadSize: 1024 * 1024 * 5,
-          params,
-          parallelUploadCount: 5
-        } as Options);
-
-        await upload.done();
-        console.log('File uploaded successfully');
-        res.status(200).send('File uploaded');
-      } catch (err) {
-        console.error(err);
-        res.status(500).send('Failed to upload file');
-      }
-    }
-
-  } catch (e) {
-    next(e)
-  }
-});
-
-router.post('/files/upload/:associationId/:folderName', upload.single('file'), async (req, res, next) => {
+router.post('/files/upload/:associationId/:folderName',verifyUserBlock,verifyToken, upload.single('file'), async (req, res, next) => {
   try {
     const s3Client = new S3Client({
       region: AWS_REGION,
@@ -459,7 +395,7 @@ router.post('/files/upload/:associationId/:folderName', upload.single('file'), a
   }
 });
 
-router.post('/files/upload/:associationId', upload.single('file'), async (req, res, next) => {
+router.post('/files/upload/:associationId',verifyUserBlock,verifyToken, upload.single('file'), async (req, res, next) => {
   try {
     const s3Client = new S3Client({
       region: AWS_REGION,
@@ -536,7 +472,7 @@ router.get('/files/download/:associationId/:filename', async (req, res, next) =>
   }
 });
 
-router.delete('/files/delete/:associationId/:filename', async (req, res) => {
+router.delete('/files/delete/:associationId/:filename',verifyUserBlock,verifyToken, async (req, res) => {
   const s3Client = new S3Client({
     region: AWS_REGION,
     credentials: {
@@ -564,7 +500,7 @@ router.delete('/files/delete/:associationId/:filename', async (req, res) => {
   }
 });
 
-router.get('/getAssociationWithId/:associationId', async (req, res, next) => {
+router.get('/getAssociationWithId/:associationId',verifyToken, async (req, res, next) => {
   const { associationId } = req.params;
 
   try {

@@ -63,7 +63,7 @@ const EditUserModal = ({ visible, onClose, user, fetchData }) => {
           </Select>
         </Form.Item>
         <Form.Item
-          name="isBlocked"
+          name="bloqued"
           label="Est bloqué"
           valuePropName="checked"
         >

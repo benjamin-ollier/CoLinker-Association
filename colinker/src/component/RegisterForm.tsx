@@ -9,14 +9,13 @@ const RegisterForm = ({ onLoginClick }) => {
   const onFinish = async (values) => {
     try {
       const response = await register(values);
+      console.log("Registered");
       
-      if (response.message == "Registration successful") {
+      if (response && (response.status === 200 || response.status === 204)) {
         const { username, password } = values;
         const credentials = { username, password };        
         const res = await login(credentials);
         if (res.token) {
-          localStorage.setItem('token', response.token);
-          localStorage.setItem('username', username);
           navigate('/Home');
         }
       }

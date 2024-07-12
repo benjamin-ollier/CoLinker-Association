@@ -46,7 +46,7 @@ const Setting = () => {
 
     try {
       const res = await postAssociation(valuesWithUsername);
-      if (res.status === 200 || res.status === 201) {
+      if (res.status === 204 || res.status === 201) {
         localStorage.setItem('asAssociation', "true");
       } else {
         console.error('Une erreur est survenue lors de la sauvegarde de l’association');
@@ -106,7 +106,7 @@ const Setting = () => {
           onFinish={handleSaveAssociationData}
           className="p-10"
         >
-          <Form.Item label="Modifier votre association">
+          <Form.Item label="Créer une association">
             <Form.Item
               name="name"
               label="Nom de l'association"

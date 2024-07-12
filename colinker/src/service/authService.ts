@@ -29,10 +29,9 @@ interface RegisterCredentials {
 
 const register = async (credentials: RegisterCredentials) => {
   try {
-    console.log(credentials)
     const response = await api.post('/auth/register', credentials);
     if (response.data) {
-      return response.data;
+      return response;
     }
   } catch (error) {
     throw new Error("Registration failed");
