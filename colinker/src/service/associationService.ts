@@ -133,6 +133,7 @@ const getAssociationMembers = async (association) => {
 const addUserToAssociation = async (data) => {
   try {
     const response = await api.post(`/association/addUserToAssociation`, data);
+    console.log(data);
     if (response.data) {
       return response;
     }
@@ -207,6 +208,18 @@ export const getAssociationImage = async (id) => {
     throw new Error("get association image failed");
   }
 }
+
+export const getUserRole = async (associationId,userId) => {
+  try {
+    const response = await api.get(`/association/getUserRole/${associationId}/${userId}`);
+    if (response.data) {
+      return response.data;
+    }
+  } catch (error) {
+    throw new Error("get association image failed");
+  }
+}
+
 
 
 

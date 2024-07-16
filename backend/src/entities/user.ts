@@ -12,7 +12,6 @@ export interface IUser extends mongoose.Document {
   password: string;
   role: 'user' | 'admin';
   token: String;
-  bloqued: boolean;
   comparePassword: (candidatePassword: string) => Promise<boolean>;
 }
 
@@ -40,10 +39,6 @@ const userSchema = new mongoose.Schema<IUser>(
     password: {
       type: String,
       required: true
-    },
-    bloqued: {
-      type: Boolean,
-      required: false
     },
     role: {
       type: String,

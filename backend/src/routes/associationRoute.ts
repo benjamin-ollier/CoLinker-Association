@@ -17,7 +17,7 @@ const AWS_REGION = process.env.AWS_REGION
 const AWS_ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID
 const AWS_ACCESS_KEY_SECRET = process.env.AWS_ACCESS_KEY_SECRET
 
-router.post('/',verifyUserBlock,verifyToken, async (req, res, next) => {
+router.post('/',verifyToken, async (req, res, next) => {
   try {
     const { username, name, siret, description } = req.body;
 
@@ -26,19 +26,13 @@ router.post('/',verifyUserBlock,verifyToken, async (req, res, next) => {
       return res.status(404).json({ message: "Utilisateur non trouvé." });
     }
 
-    //const existingAssociation = await Association.findOne({ "member.user": user, "member.role": "Créateur" });
-  
-    /*if (existingAssociation) {
-      throw new Error("Cet utilisateur a déjà créé une association.");
-    }*/
-
     const nouvelleAssociation = new Association({
       name,
       siret,
       description,
       member: [{
         user: user._id,
-        role: 'Créateur'
+        role: 'Président'
       }]
     });
 
@@ -54,22 +48,33 @@ router.get('/getUserAdminAssociation/:username', async (req, res, next) => {
   try {
     const { username } = req.params;
 
-    const user = await User.findOne({ username: username });
+    const user = await User.findOne({ username });
     if (!user) {
       return res.status(404).json({ message: "Utilisateur non trouvé." });
     }
 
-    const association = await Association.findOne({ "member.user": user._id }).populate('member.user', 'username');
+    const associations = await Association.find({ "member.user": user._id })
+      .populate('member.user', 'username isBlocked');
 
-    if (!association) {
+    if (associations.length === 0) {
       return res.status(204).json({ message: "Aucune association trouvée pour cet utilisateur." });
     }
 
-    res.json(association);
+    const filteredAssociations = associations.filter(association => {
+      const member = association.member.find(m => m.user._id.equals(user._id));
+      return member && !member.isBlocked;
+    });
+
+    if (filteredAssociations.length === 0) {
+      return res.status(204).json({ message: "Aucune association valide trouvée pour cet utilisateur." });
+    }
+
+    res.json(filteredAssociations);
   } catch (error) {
     next(error);
   }
 });
+
 
 router.get('/userAssociation/username/:username', async (req, res, next) => {
   try {
@@ -150,19 +155,16 @@ router.post('/addMember/:associationId',verifyUserBlock,verifyToken, async (req,
   const { userId, role } = req.body;
 
   try {
-    // Rechercher l'utilisateur pour s'assurer qu'il existe
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ message: "Utilisateur non trouvé." });
     }
 
-    // Rechercher l'association pour s'assurer qu'elle existe
     const association = await Association.findById(associationId);
     if (!association) {
       return res.status(404).json({ message: "Association non trouvée." });
     }
 
-    // Vérifier si l'utilisateur est déjà membre de l'association
     const isMember = association.member.some(member => member.user.toString() === userId);
     if (isMember) {
       return res.status(400).json({ message: "L'utilisateur est déjà membre de cette association." });
@@ -205,10 +207,15 @@ router.get('/associationMembers/:associationId', async (req, res, next) => {
   }
 });
 
-router.post('/addUserToAssociation',verifyUserBlock,verifyToken, async (req, res, next) => {
-  try {
-    const { associationId, userId } = req.body;
 
+router.post('/addUserToAssociation', verifyUserBlock, verifyToken, async (req, res, next) => {
+  const { associationId, userId } = req.body;
+
+  if (!mongoose.Types.ObjectId.isValid(associationId) || !mongoose.Types.ObjectId.isValid(userId)) {
+    return res.status(400).json({ message: "ID invalide." });
+  }
+
+  try {
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ message: "Utilisateur non trouvé." });
@@ -241,23 +248,28 @@ router.post('/addUserToAssociation',verifyUserBlock,verifyToken, async (req, res
   }
 });
 
-router.patch('/editMember/:associationId/:userId',verifyUserBlock,verifyToken, async (req, res) => {
+
+router.patch('/editMember/:associationId/:userId', verifyToken, verifyUserBlock, async (req, res) => {
   const { associationId, userId } = req.params;
   const { role, isBlocked } = req.body;
 
   try {
-    const association = await Association.findById(associationId);
+    const association = await Association.findById(associationId).populate('member.user');
     if (!association) {
       return res.status(404).json({ message: "Association non trouvée." });
     }
 
-    const memberIndex = association.member.findIndex(member => member.user.toString() === userId);
+    const memberIndex = association.member.findIndex(member => member.user._id.equals(userId));
     if (memberIndex === -1) {
       return res.status(404).json({ message: "Membre non trouvé dans l'association." });
     }
 
-    if (role) association.member[memberIndex].role = role;
-    if (isBlocked !== undefined) association.member[memberIndex].isBlocked = isBlocked;
+    if (role) {
+      association.member[memberIndex].role = role;
+    }
+    if (isBlocked !== undefined) {
+      association.member[memberIndex].isBlocked = isBlocked;
+    }
 
     await association.save();
 
@@ -266,8 +278,9 @@ router.patch('/editMember/:associationId/:userId',verifyUserBlock,verifyToken, a
       association: association
     });
   } catch (error) {
+    console.error('Erreur lors de la mise à jour du membre:', error);
     res.status(500).json({
-      message: 'Erreur lors de la mise à jour du membre'    
+      message: 'Erreur lors de la mise à jour du membre',
     });
   }
 });
@@ -531,5 +544,32 @@ router.get('/getAssociationImage/:associationId', async (req, res, next) => {
     next(error);
   }
 });
+
+router.get('/getUserRole/:associationId/:userId', verifyToken, async (req, res, next) => {
+  try {
+    const { associationId, userId } = req.params;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "Utilisateur non trouvé." });
+    }
+
+    const association = await Association.findById(associationId);
+    if (!association) {
+      return res.status(404).json({ message: "Association non trouvée." });
+    }
+
+    const member = association.member.find(m => m.user.equals(user._id));
+    if (!member) {
+      return res.status(404).json({ message: "Membre non trouvé dans l'association." });
+    }
+
+    res.status(200).json({ role: member.role });
+  } catch (error) {
+    console.error('Erreur lors de la récupération du rôle de l\'utilisateur:', error);
+    res.status(500).json({ message: 'Erreur lors de la récupération du rôle de l\'utilisateur' });
+  }
+});
+
 
 export default router;

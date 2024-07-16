@@ -4,11 +4,11 @@ import mongoose from 'mongoose';
 import Vote, {IOption, IVote} from '../entities/vote';
 import { Types } from 'mongoose';
 import {IUser } from '../entities/user'
-import { verifyToken } from '../middlewares/authenticate';
+import { verifyToken, verifyUserBlock } from '../middlewares/authenticate';
 
 const router = express.Router();
 
-router.get('/byAssociation/:associationId',  async (req: Request, res: Response, next: NextFunction) => {
+router.get('/byAssociation/:associationId',verifyToken,  async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { associationId } = req.params;
     const votes = await Vote.find({ associationId: new mongoose.Types.ObjectId(associationId) }).populate('associationId');
@@ -18,7 +18,7 @@ router.get('/byAssociation/:associationId',  async (req: Request, res: Response,
   }
 });
 
-router.get('/', async (req: Request, res: Response, next: NextFunction) => {
+router.get('/', verifyToken,async (req: Request, res: Response, next: NextFunction) => {
   try {
     const votes = await Vote.find({});
     for (let vote of votes) {
@@ -32,7 +32,7 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
 
 
 // POST create a new vote
-router.post('/:associationId', async (req: Request, res: Response, next: NextFunction) => {
+router.post('/:associationId',verifyToken,verifyUserBlock, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { associationId } = req.params;
     const newVote = new Vote({
@@ -65,7 +65,7 @@ router.get('/:id', verifyToken, async (req: Request, res: Response, next: NextFu
 
 
 // PUT update a vote
-router.put('/:id', async (req: Request, res: Response, next: NextFunction) => {
+router.put('/:id',verifyUserBlock,verifyToken, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
     const vote = await Vote.findByIdAndUpdate(id, req.body, { new: true });
@@ -79,7 +79,7 @@ router.put('/:id', async (req: Request, res: Response, next: NextFunction) => {
 });
 
 // DELETE a vote
-router.delete('/:id', async (req: Request, res: Response, next: NextFunction) => {
+router.delete('/:id',verifyToken,verifyUserBlock, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
     const vote = await Vote.findByIdAndDelete(id);
@@ -93,7 +93,7 @@ router.delete('/:id', async (req: Request, res: Response, next: NextFunction) =>
 });
 
 
-router.post('/submitVote/:voteId', verifyToken, async (req: Request, res: Response, next: NextFunction) => {
+router.post('/submitVote/:voteId', verifyToken, verifyUserBlock, async (req: Request, res: Response, next: NextFunction) => {
   const { voteId } = req.params;
   const { optionId } = req.body;
   const voterId = (req as any).user._id;

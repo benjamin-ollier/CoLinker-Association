@@ -5,6 +5,7 @@ import EditUserModal from '../../component/admin/EditUserModal';
 import DeleteUserModal from '../../component/admin/DeleteUserModal';
 import {getMembersNotInAssociation, getAssociationMembers, addUserToAssociation} from '../../service/associationService';
 import { useAssociation } from '../../context/AssociationContext';
+import { getUserRole } from '../../service/associationService';
 
 const { Option } = Select;
 
@@ -59,6 +60,7 @@ const UserManagement = () => {
   const [userOptions, setUserOptions] = useState<UserOption[]>([]);
   const [selectedUser, setSelectedUser] = useState(undefined);
   const { selectedAssociationId } = useAssociation();
+  const [currentUserRole, setCurrentUserRole] = useState('');
 
   const fetchData = async () => {
     try {
@@ -86,8 +88,12 @@ const UserManagement = () => {
     }
   }, [selectedAssociationId]);
 
-  const handleEdit = (user) => {
+  const handleEdit = async (user) => {
+    console.log("fef")
+    const resp = await getUserRole(selectedAssociationId, user._id);
     setCurrentUser(user);
+    setCurrentUserRole(resp.role);
+    console.log(currentUserRole)
     setIsModalVisible(true);
   };
 
@@ -114,6 +120,7 @@ const UserManagement = () => {
         visible={isModalVisible}
         onClose={() => setIsModalVisible(false)}
         user={currentUser}
+        role={currentUserRole}
         fetchData={fetchData}
       />
       <DeleteUserModal

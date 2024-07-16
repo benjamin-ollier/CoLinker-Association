@@ -5,15 +5,21 @@ import { useAssociation } from '../../context/AssociationContext';
 
 const { Option } = Select;
 
-const EditUserModal = ({ visible, onClose, user, fetchData }) => {
+const EditUserModal = ({ visible, onClose, user,role, fetchData }) => {
+  const { selectedAssociationId } = useAssociation();
+  const [formRole, setFormRole] = useState(role);
+
   const roles = ['Président', 'Créateur', 'Vice-Président', 'Secrétaire', 'Trésorier', 
       'Membre du Conseil d\'Administration', 'Responsable des Communications', 
       'Bénévole', 'Membre Actif', 'Membre Bienfaiteur', 'Responsable des Événements', 
       'Coordinateur des Bénévoles', 'Responsable des Partenariats'];
-  const { selectedAssociationId } = useAssociation();
 
-  const handleEditUser = async (user) => {
-    const response = await editUserInAssociation(selectedAssociationId,user._id,user);
+  useEffect(() => {
+    setFormRole(role);
+  }, [role]);
+
+  const handleEditUser = async (values) => {
+    const response = await editUserInAssociation(selectedAssociationId, user._id, values);
     if (response?.status === 200) {
       fetchData();
       onClose();
@@ -29,11 +35,9 @@ const EditUserModal = ({ visible, onClose, user, fetchData }) => {
       footer={null}
     >
       <Form
+        key={user._id}
         initialValues={{ ...user }}
-        onFinish={(values) => {
-          handleEditUser(user);
-          onClose();
-        }}
+        onFinish={handleEditUser}
       >
         <Form.Item
           name="firstName"
@@ -54,16 +58,16 @@ const EditUserModal = ({ visible, onClose, user, fetchData }) => {
           label="Rôle"
           rules={[{ required: true, message: 'Please select the role!' }]}
         >
-          <Select defaultValue={user.role}>
-            {roles.map((role) => (
-              <Option key={role} value={role}>
-                {role}
+          <Select value={formRole} onChange={value => setFormRole(value)}>
+          {roles.map((roleOption) => (
+              <Option key={roleOption} value={roleOption}>
+                {roleOption}
               </Option>
             ))}
           </Select>
         </Form.Item>
         <Form.Item
-          name="bloqued"
+          name="isBlocked"
           label="Est bloqué"
           valuePropName="checked"
         >

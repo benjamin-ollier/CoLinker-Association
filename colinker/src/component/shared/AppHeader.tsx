@@ -4,6 +4,7 @@ import { DownOutlined, SettingOutlined, LogoutOutlined, BellOutlined } from '@an
 import { useNavigate } from 'react-router-dom';
 import AssociationSelector from '../admin/AssociationSelector';
 import { getUserNotifications } from '../../service/userService';
+import { useLocation } from 'react-router-dom';
 
 const { Header } = Layout;
 
@@ -20,7 +21,7 @@ const AppHeader: React.FC<AppHeaderProps & {onAdminClick: () => void}> = ({ titl
   useEffect(() => {
     const fetchNotifications = async () => {
       const username = localStorage.getItem('username');
-      if (username) {
+      if (username && location.pathname !== '/login') {
         try {
           const newNotifications = await getUserNotifications(username);
           setNotifications(newNotifications || []);
