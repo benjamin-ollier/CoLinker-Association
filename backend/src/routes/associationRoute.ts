@@ -71,6 +71,28 @@ router.get('/getUserAdminAssociation/:username', async (req, res, next) => {
   }
 });
 
+
+router.get('/getUserAdminAssociation/:username', async (req, res, next) => {
+  try {
+    const { username } = req.params;
+
+    const user = await User.findOne({ username: username });
+    if (!user) {
+      return res.status(404).json({ message: "Utilisateur non trouvé." });
+    }
+
+    const association = await Association.findOne({ "member.user": user._id }).populate('member.user', 'username');
+
+    if (!association) {
+      return res.status(204).json({ message: "Aucune association trouvée pour cet utilisateur." });
+    }
+
+    res.json(association);
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.get('/userAssociation/username/:username', async (req, res, next) => {
   try {
     const { username } = req.params;
@@ -197,7 +219,8 @@ router.get('/associationMembers/:associationId', async (req, res, next) => {
     
     const users = await User.find({
       '_id': { $in: memberIds }
-    }).select('-token -password');
+    })
+    .select('-token -password')
     
     res.json(users);
   } catch (error) {
