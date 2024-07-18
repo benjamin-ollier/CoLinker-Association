@@ -1,10 +1,9 @@
 import React , { useState, useEffect } from 'react';
 import { Layout, Menu, Dropdown, Button, Tooltip, Badge } from 'antd';
 import { DownOutlined, SettingOutlined, LogoutOutlined, BellOutlined } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import AssociationSelector from '../admin/AssociationSelector';
 import { getUserNotifications } from '../../service/userService';
-import { useLocation } from 'react-router-dom';
 
 const { Header } = Layout;
 
@@ -17,6 +16,7 @@ interface AppHeaderProps {
 const AppHeader: React.FC<AppHeaderProps & {onAdminClick: () => void}> = ({ title, logoSrc, isAdminMode, onAdminClick }) => {
   const navigate = useNavigate();
   const [notifications, setNotifications] = useState<any[]>([]);
+  const location = useLocation();
 
   useEffect(() => {
     const fetchNotifications = async () => {
