@@ -368,7 +368,7 @@ router.post('/files/makedir/:associationId/:directoryname',verifyUserBlock,verif
 })
 
 
-router.post('/files/upload/:associationId/:folderName',verifyUserBlock,verifyToken, upload.single('file'), async (req, res, next) => {
+router.post('/files/upload/images/:associationId', upload.single('file'), async (req, res, next) => {
   try {
     const s3Client = new S3Client({
       region: AWS_REGION,
@@ -377,15 +377,41 @@ router.post('/files/upload/:associationId/:folderName',verifyUserBlock,verifyTok
         secretAccessKey: AWS_ACCESS_KEY_SECRET!,
       },
     });
-    
+
     if (req.file) {
-      const { associationId, folderName } = req.params;
+      const { associationId } = req.params;
+      const association = await Association.findById(associationId);
+      const image = association ? association.image : null;
+
       const fileStream = Readable.from(req.file.buffer);
+
+      try {
+        if (association) {
+          association.image = req.file.originalname;
+          await association.save();
+        }
+      } catch(e) {
+        console.error(e);
+      }
+
+      const deleteParams = {
+        Bucket: 'projet-ecole-ong',
+        Key: 'images/' + associationId + '/' + image,
+      };
+
+      try {
+        await s3Client.send(new DeleteObjectCommand(deleteParams));
+      } catch (err) {
+        console.error('Error deleting previous file:', err);
+      }
+
       const params = {
         Bucket: 'projet-ecole-ong',
-        Key: associationId + "/" + folderName.replace(":", "/") + req.file.originalname,
+        Key: 'images/' + associationId + "/" + req.file.originalname,
         Body: fileStream,
-      };
+        ContentType: req.file.mimetype,
+      }
+
       try {
         const upload = new Upload({
           client: s3Client,
@@ -408,7 +434,7 @@ router.post('/files/upload/:associationId/:folderName',verifyUserBlock,verifyTok
   }
 });
 
-router.post('/files/upload/:associationId',verifyUserBlock,verifyToken, upload.single('file'), async (req, res, next) => {
+router.post('/files/upload/:associationId/:folderName', upload.single('file'), async (req, res, next) => {
   try {
     const s3Client = new S3Client({
       region: AWS_REGION,
@@ -419,11 +445,11 @@ router.post('/files/upload/:associationId',verifyUserBlock,verifyToken, upload.s
     });
     
     if (req.file) {
-      const { associationId } = req.params;
+      const { associationId, folderName } = req.params;
       const fileStream = Readable.from(req.file.buffer);
       const params = {
         Bucket: 'projet-ecole-ong',
-        Key: associationId + "/" + req.file.originalname,
+        Key: associationId + "/" + folderName.replace(":", "/") + req.file.originalname,
         Body: fileStream,
       };
       try {
