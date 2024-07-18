@@ -26,16 +26,6 @@ const columns = (handleEdit,handleDelete) => [
     key: 'lastName',
   },
   {
-    title: 'Total des Dons',
-    dataIndex: 'totalDons',
-    key: 'totalDons',
-  },
-  {
-    title: 'Rôle',
-    dataIndex: 'role',
-    key: 'role',
-  },
-  {
     title: 'Action',
     key: 'action',
     render: (_, record) => (
@@ -89,11 +79,19 @@ const UserManagement = () => {
   }, [selectedAssociationId]);
 
   const handleEdit = async (user) => {
-    console.log("fef")
-    const resp = await getUserRole(selectedAssociationId, user._id);
+    try {
+      const resp = await getUserRole(selectedAssociationId, user._id);
+      setCurrentUser(user);
+      setIsModalVisible(true);
+      openEditModal(user, resp.role);
+    } catch (error) {
+      console.error('Failed to fetch user role:', error);
+    }
+  };
+
+  const openEditModal = (user, role) => {
     setCurrentUser(user);
-    setCurrentUserRole(resp.role);
-    console.log(currentUserRole)
+    setCurrentUserRole(role);
     setIsModalVisible(true);
   };
 

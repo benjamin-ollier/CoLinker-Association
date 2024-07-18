@@ -37,7 +37,7 @@ const verifyToken = (req: Request, res: Response, next: NextFunction) => {
 
 const verifyUserBlock = async (req: Request, res: Response, next: NextFunction) => {
   const userId = (req as any).user?._id;
-  const associationId = req.params.associationId;
+  const associationId = req.params.associationId || req.body.associationId;
 
   if (!userId || !associationId) {
     return res.status(400).json({ message: 'Missing user or association information' });

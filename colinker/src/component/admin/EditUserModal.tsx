@@ -8,6 +8,8 @@ const { Option } = Select;
 const EditUserModal = ({ visible, onClose, user,role, fetchData }) => {
   const { selectedAssociationId } = useAssociation();
   const [formRole, setFormRole] = useState(role);
+  const [form] = Form.useForm();
+
 
   const roles = ['Président', 'Créateur', 'Vice-Président', 'Secrétaire', 'Trésorier', 
       'Membre du Conseil d\'Administration', 'Responsable des Communications', 
@@ -15,8 +17,15 @@ const EditUserModal = ({ visible, onClose, user,role, fetchData }) => {
       'Coordinateur des Bénévoles', 'Responsable des Partenariats'];
 
   useEffect(() => {
-    setFormRole(role);
-  }, [role]);
+    if (visible) {
+      form.setFieldsValue({
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: role,
+        isBlocked: user.isBlocked
+      });
+    }
+  }, [visible, user, role, form]);
 
   const handleEditUser = async (values) => {
     const response = await editUserInAssociation(selectedAssociationId, user._id, values);
@@ -34,11 +43,7 @@ const EditUserModal = ({ visible, onClose, user,role, fetchData }) => {
       onCancel={onClose}
       footer={null}
     >
-      <Form
-        key={user._id}
-        initialValues={{ ...user }}
-        onFinish={handleEditUser}
-      >
+      <Form form={form} onFinish={handleEditUser}>
         <Form.Item
           name="firstName"
           label="Prénom"
@@ -58,8 +63,8 @@ const EditUserModal = ({ visible, onClose, user,role, fetchData }) => {
           label="Rôle"
           rules={[{ required: true, message: 'Please select the role!' }]}
         >
-          <Select value={formRole} onChange={value => setFormRole(value)}>
-          {roles.map((roleOption) => (
+          <Select value={formRole} onChange={setFormRole}>
+            {roles.map((roleOption) => (
               <Option key={roleOption} value={roleOption}>
                 {roleOption}
               </Option>
