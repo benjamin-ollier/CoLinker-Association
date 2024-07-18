@@ -368,7 +368,7 @@ router.post('/files/makedir/:associationId/:directoryname',verifyUserBlock,verif
 })
 
 
-router.post('/files/upload/images/:associationId', upload.single('file'), async (req, res, next) => {
+router.post('/files/upload/images/:associationId', verifyToken, verifyUserBlock,upload.single('file'), async (req, res, next) => {
   try {
     const s3Client = new S3Client({
       region: AWS_REGION,
@@ -434,7 +434,7 @@ router.post('/files/upload/images/:associationId', upload.single('file'), async 
   }
 });
 
-router.post('/files/upload/:associationId/:folderName', upload.single('file'), async (req, res, next) => {
+router.post('/files/upload/:associationId/:folderName', verifyToken, verifyUserBlock,upload.single('file'), async (req, res, next) => {
   try {
     const s3Client = new S3Client({
       region: AWS_REGION,
