@@ -1,13 +1,17 @@
 import express, { Request, Response, NextFunction } from 'express';
 import AssembleeGenerale from '../entities/assembleeGenerale';
 import IAssembleeGenerale from '../entities/assembleeGenerale';
+import Association from '../entities/association';
 
 const router = express.Router();
 
 router.post('/:associationId', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { associationId } = req.params;
-    const { title, description, type, dateStart, dateEnd, status, detailAgenda, location, member, votes, document } = req.body;
+    const { title, description, type, dateStart, dateEnd, status, detailAgenda, location, votes, document } = req.body;
+
+    const association = await Association.findById(associationId);
+    if (!association) return res.status(404).send("Association non trouvée");
 
     const nouvelleAG = new AssembleeGenerale({
       associationId,
@@ -19,7 +23,7 @@ router.post('/:associationId', async (req: Request, res: Response, next: NextFun
       status,
       detailAgenda,
       location,
-      member,
+      member: association.member,
       votes,
       document
     });

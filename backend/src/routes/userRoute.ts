@@ -2,6 +2,7 @@ import express, { Request, Response, NextFunction } from 'express';
 import User from '../entities/user';
 import Donation from '../entities/donation';
 import Association from '../entities/association';
+import Vote from '../entities/vote';
 
 const router = express.Router();
 
@@ -60,11 +61,20 @@ router.get('/notifications/:username', async (req: Request, res: Response, next:
         }
       }
     }
+
+    const associations = await Association.find({member: {$elemMatch: {user: user._id}}});
+    if (associations) {
+      const associationIds = associations.map(asso => asso._id);
+      const votes = await Vote.find({associationId: {$in: associationIds}}).exec();
+      votes.some(vote => now >= vote.startDate && now <= vote.endDate) && notifications.push({
+        message: "Vous avez un ou plusieurs votes en cours."
+      });
+    }
   
     if (notifications.length > 0) {
       return res.status(200).json({ notifications });
     } else {
-      return res.status(200).json({ message: "Toutes les donations sont à jour." });
+      return res.status(200).json({ message: "Aucune notification" });
     }
   } catch (error) {
     next(error);
