@@ -40,7 +40,7 @@ api.interceptors.response.use(
   (response) => {
     const method = response.config?.method;
     if (method && method !== 'get') {
-      if(method == 'post' || method == 'put') {
+      if(method == 'post' || method == 'put' || method == 'patch') {
         const messageText = `Les modifications ont bien été apportés`;
         message.success(messageText);
       }

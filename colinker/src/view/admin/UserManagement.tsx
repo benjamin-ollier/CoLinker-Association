@@ -5,6 +5,7 @@ import EditUserModal from '../../component/admin/EditUserModal';
 import DeleteUserModal from '../../component/admin/DeleteUserModal';
 import {getMembersNotInAssociation, getAssociationMembers, addUserToAssociation} from '../../service/associationService';
 import { useAssociation } from '../../context/AssociationContext';
+import { getUserRole } from '../../service/associationService';
 
 const { Option } = Select;
 
@@ -23,16 +24,6 @@ const columns = (handleEdit,handleDelete) => [
     title: 'Nom',
     dataIndex: 'lastName',
     key: 'lastName',
-  },
-  {
-    title: 'Total des Dons',
-    dataIndex: 'totalDons',
-    key: 'totalDons',
-  },
-  {
-    title: 'Rôle',
-    dataIndex: 'role',
-    key: 'role',
   },
   {
     title: 'Action',
@@ -59,6 +50,7 @@ const UserManagement = () => {
   const [userOptions, setUserOptions] = useState<UserOption[]>([]);
   const [selectedUser, setSelectedUser] = useState(undefined);
   const { selectedAssociationId } = useAssociation();
+  const [currentUserRole, setCurrentUserRole] = useState('');
 
   const fetchData = async () => {
     try {
@@ -86,8 +78,20 @@ const UserManagement = () => {
     }
   }, [selectedAssociationId]);
 
-  const handleEdit = (user) => {
+  const handleEdit = async (user) => {
+    try {
+      const resp = await getUserRole(selectedAssociationId, user._id);
+      setCurrentUser(user);
+      setIsModalVisible(true);
+      openEditModal(user, resp.role);
+    } catch (error) {
+      console.error('Failed to fetch user role:', error);
+    }
+  };
+
+  const openEditModal = (user, role) => {
     setCurrentUser(user);
+    setCurrentUserRole(role);
     setIsModalVisible(true);
   };
 
@@ -114,6 +118,7 @@ const UserManagement = () => {
         visible={isModalVisible}
         onClose={() => setIsModalVisible(false)}
         user={currentUser}
+        role={currentUserRole}
         fetchData={fetchData}
       />
       <DeleteUserModal

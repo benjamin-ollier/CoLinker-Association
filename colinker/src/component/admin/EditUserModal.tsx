@@ -5,15 +5,30 @@ import { useAssociation } from '../../context/AssociationContext';
 
 const { Option } = Select;
 
-const EditUserModal = ({ visible, onClose, user, fetchData }) => {
+const EditUserModal = ({ visible, onClose, user,role, fetchData }) => {
+  const { selectedAssociationId } = useAssociation();
+  const [formRole, setFormRole] = useState(role);
+  const [form] = Form.useForm();
+
+
   const roles = ['Président', 'Créateur', 'Vice-Président', 'Secrétaire', 'Trésorier', 
       'Membre du Conseil d\'Administration', 'Responsable des Communications', 
       'Bénévole', 'Membre Actif', 'Membre Bienfaiteur', 'Responsable des Événements', 
       'Coordinateur des Bénévoles', 'Responsable des Partenariats'];
-  const { selectedAssociationId } = useAssociation();
 
-  const handleEditUser = async (user) => {
-    const response = await editUserInAssociation(selectedAssociationId,user._id,user);
+  useEffect(() => {
+    if (visible) {
+      form.setFieldsValue({
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: role,
+        isBlocked: user.isBlocked
+      });
+    }
+  }, [visible, user, role, form]);
+
+  const handleEditUser = async (values) => {
+    const response = await editUserInAssociation(selectedAssociationId, user._id, values);
     if (response?.status === 200) {
       fetchData();
       onClose();
@@ -28,13 +43,7 @@ const EditUserModal = ({ visible, onClose, user, fetchData }) => {
       onCancel={onClose}
       footer={null}
     >
-      <Form
-        initialValues={{ ...user }}
-        onFinish={(values) => {
-          handleEditUser(user);
-          onClose();
-        }}
-      >
+      <Form form={form} onFinish={handleEditUser}>
         <Form.Item
           name="firstName"
           label="Prénom"
@@ -54,16 +63,16 @@ const EditUserModal = ({ visible, onClose, user, fetchData }) => {
           label="Rôle"
           rules={[{ required: true, message: 'Please select the role!' }]}
         >
-          <Select defaultValue={user.role}>
-            {roles.map((role) => (
-              <Option key={role} value={role}>
-                {role}
+          <Select value={formRole} onChange={setFormRole}>
+            {roles.map((roleOption) => (
+              <Option key={roleOption} value={roleOption}>
+                {roleOption}
               </Option>
             ))}
           </Select>
         </Form.Item>
         <Form.Item
-          name="bloqued"
+          name="isBlocked"
           label="Est bloqué"
           valuePropName="checked"
         >

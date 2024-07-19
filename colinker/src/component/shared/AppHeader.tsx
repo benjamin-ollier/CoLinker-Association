@@ -1,7 +1,7 @@
 import React , { useState, useEffect } from 'react';
 import { Layout, Menu, Dropdown, Button, Tooltip, Badge } from 'antd';
 import { DownOutlined, SettingOutlined, LogoutOutlined, BellOutlined } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import AssociationSelector from '../admin/AssociationSelector';
 import { getUserNotifications } from '../../service/userService';
 
@@ -16,11 +16,12 @@ interface AppHeaderProps {
 const AppHeader: React.FC<AppHeaderProps & {onAdminClick: () => void}> = ({ title, logoSrc, isAdminMode, onAdminClick }) => {
   const navigate = useNavigate();
   const [notifications, setNotifications] = useState<any[]>([]);
+  const location = useLocation();
 
   useEffect(() => {
     const fetchNotifications = async () => {
       const username = localStorage.getItem('username');
-      if (username) {
+      if (username && location.pathname !== '/login') {
         try {
           const newNotifications = await getUserNotifications(username);
           setNotifications(newNotifications || []);
