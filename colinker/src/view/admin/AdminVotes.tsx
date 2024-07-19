@@ -41,15 +41,19 @@ const Votes = () => {
     },
     {
       title: 'Date de début',
-      dataIndex: 'dateDebut',
-      key: 'dateDebut',
-      render: (date) => (date ? format(parseISO(date), 'dd/MM/yyyy HH:mm') : 'Date invalide'),
+      dataIndex: 'startDate',
+      key: 'startDate',
+      render: (dateDebut: string) => {
+        return dateDebut ? format(parseISO(dateDebut), 'dd/MM/yyyy HH:mm') : 'Date invalide';
+      }
     },
     {
       title: 'Date de fin',
-      dataIndex: 'dateFin',
-      key: 'dateFin',
-      render: (date) => (date ? format(parseISO(date), 'dd/MM/yyyy HH:mm') : 'Date invalide'),
+      dataIndex: 'endDate',
+      key: 'endDate',
+      render: (endDate: string) => {
+        return endDate ? format(parseISO(endDate), 'dd/MM/yyyy HH:mm') : 'Date invalide';
+      },
     },
     {
       title: 'Quorum',

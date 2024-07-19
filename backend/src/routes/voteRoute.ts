@@ -5,6 +5,7 @@ import Vote, {IOption, IVote} from '../entities/vote';
 import { Types } from 'mongoose';
 import {IUser } from '../entities/user'
 import { verifyToken, verifyUserBlock } from '../middlewares/authenticate';
+import AssembleeGenerale from '../entities/assembleeGenerale';
 
 const router = express.Router();
 
@@ -35,9 +36,17 @@ router.get('/', verifyToken,async (req: Request, res: Response, next: NextFuncti
 router.post('/:associationId',verifyToken,verifyUserBlock, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { associationId } = req.params;
+    const { ag, ...rest } = req.body;
+
+    const foundAg = await AssembleeGenerale.findById(ag);
+    if (!foundAg) return res.status(404).send("Assemblée générale non trouvée");
+
     const newVote = new Vote({
-      ...req.body,
-      associationId: new mongoose.Types.ObjectId(associationId)
+      ...rest,
+      ag,
+      associationId: new mongoose.Types.ObjectId(associationId),
+      startDate: foundAg.dateStart.toISOString(),
+      endDate: foundAg.dateEnd.toISOString(),
     });
     await newVote.save();
     res.status(201).json({ message: 'Vote créé avec succès', vote: newVote });

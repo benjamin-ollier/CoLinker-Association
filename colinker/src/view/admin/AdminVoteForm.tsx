@@ -87,16 +87,11 @@ const VoteForm = () => {
   }
 
   const handleSaveData = async (values) => {
-    const formattedValues = {
-      ...values,
-      startDate: values.startDate ? values.startDate.toISOString() : null,
-      endDate: values.endDate ? values.endDate.toISOString() : null,
-    };
     try {
       if (isNew) {
-        await createVote(selectedAssociationId, formattedValues);
+        await createVote(selectedAssociationId, values);
       } else {
-        await updateVote(id, formattedValues);
+        await updateVote(id, values);
       }
       navigate('/admin/vote');
     } catch (error) {
@@ -127,12 +122,6 @@ const VoteForm = () => {
         </Form.Item>
         <Form.Item name="description" label="Description" rules={[{ required: true }]}>
           <Input.TextArea rows={4} placeholder="Description" />
-        </Form.Item>
-        <Form.Item name="startDate" label="Date et heure de début">
-          <DatePicker showTime format="YYYY-MM-DD HH:mm:ss" style={{ width: '100%' }} />
-        </Form.Item>
-        <Form.Item name="endDate" label="Date et heure de fin">
-          <DatePicker showTime format="YYYY-MM-DD HH:mm:ss" style={{ width: '100%' }} />
         </Form.Item>
         <Form.Item name="question" label="Question" rules={[{ required: true }]}>
           <Input placeholder="Question" />

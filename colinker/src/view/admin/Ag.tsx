@@ -63,7 +63,7 @@ const Ag: React.FC = () => {
       dataIndex: 'dateEnd',
       key: 'dateEnd',
       render: (dateEnd: string) => {
-        return dateEnd ? formatISO(parseISO(dateEnd), { representation: 'date' }) : 'Date invalide';
+        return dateEnd ? format(parseISO(dateEnd), 'dd/MM/yyyy HH:mm') : 'Date invalide';
       },
     },
     {
