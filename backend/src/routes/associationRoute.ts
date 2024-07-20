@@ -295,6 +295,18 @@ router.get('/allAssociations', async (req, res, next) => {
   }
 });
 
+router.get('/followed/:username', async (req, res, next) => {
+  const { username } = req.params;
+  try {
+    const user = await User.findOne({username});
+    if (!user) return res.status(404).send("Utilisateur non trouvé");
+    const associations = await Association.find({_id: {$in: user.follows}});
+    res.json(associations);
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.get('/getAsoociationWithName/:name', async (req, res) => {
   const { name } = req.params;
 

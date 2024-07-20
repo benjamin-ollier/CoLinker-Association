@@ -66,6 +66,26 @@ const getUserNotifications = async (username: string) => {
   }
 }
 
+const followAssociation = async (username: string, associationId: string) => {
+  try {
+    const response = await api.put(`/user/follow/${username}/${associationId}`);
+    if (response.data) {
+      return response.data;
+    }
+  } catch (error) {
+    throw new Error("Registration failed");
+  }
+}
 
+const checkFollowing = async (username: string, associationId: string) => {
+  try {
+    const response = await api.get(`/user/isfollow/${username}/${associationId}`);
+    if (response.data) {
+      return response.data.isFollow;
+    }
+  } catch (error) {
+    throw new Error("Registration failed");
+  }
+}
 
-export { getAllAG, getAGById, createAG, updateAG, getUserInfo, getUserNotifications };
+export { getAllAG, getAGById, createAG, updateAG, getUserInfo, getUserNotifications, followAssociation, checkFollowing };

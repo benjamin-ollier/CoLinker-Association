@@ -10,7 +10,7 @@ interface IWidget {
   title: string;
 }
 
-interface IAssociation extends Document {
+export interface IAssociation extends Document {
   name: string;
   siret: string;
   informationDescription: string;
@@ -42,7 +42,7 @@ const WidgetSchema = new Schema<IWidget>({
   title: { type: String, required: true },
 });
 
-const AssociationSchema = new Schema<IAssociation>({
+export const AssociationSchema = new Schema<IAssociation>({
   name: { type: String, required: true },
   siret: { type: String, required: true },
   widgetTitle: { type: String, required: false },

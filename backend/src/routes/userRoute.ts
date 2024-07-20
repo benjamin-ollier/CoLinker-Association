@@ -3,6 +3,7 @@ import User from '../entities/user';
 import Donation from '../entities/donation';
 import Association from '../entities/association';
 import Vote from '../entities/vote';
+import mongoose from 'mongoose';
 
 const router = express.Router();
 
@@ -76,6 +77,44 @@ router.get('/notifications/:username', async (req: Request, res: Response, next:
     } else {
       return res.status(200).json({ message: "Aucune notification" });
     }
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.put('/follow/:username/:associationId', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { username, associationId } = req.params;
+    
+    const user = await User.findOne({username});
+    if (!user) return res.status(404).json({message: 'Utilisateur non trouvé.'});
+    const association = await Association.findById(associationId);
+    if (!association) return res.status(404).send({message: 'Association non trouvée'});
+
+    const associationObjId = new mongoose.Types.ObjectId(associationId);
+    if (!user.follows.includes(associationObjId)) {
+      user.follows.push(associationObjId);
+    } else {
+      user.follows = user.follows.filter(id => !id.equals(associationObjId));
+    }
+    await user.save();
+    res.status(200).json({message: "Association suivie avec succès."});
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get('/isfollow/:username/:associationId', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { username, associationId } = req.params;
+    
+    const user = await User.findOne({username});
+    if (!user) return res.status(404).json({message: 'Utilisateur non trouvé.'});
+    const association = await Association.findById(associationId);
+    if (!association) return res.status(404).send({message: 'Association non trouvée'});
+
+    const associationObjId = new mongoose.Types.ObjectId(associationId);
+    res.status(200).json({isFollow: user.follows.includes(associationObjId)});
   } catch (error) {
     next(error);
   }

@@ -12,6 +12,7 @@ export interface IUser extends mongoose.Document {
   password: string;
   role: 'user' | 'admin';
   token: String;
+  follows: mongoose.Types.ObjectId[];
   comparePassword: (candidatePassword: string) => Promise<boolean>;
 }
 
@@ -49,6 +50,10 @@ const userSchema = new mongoose.Schema<IUser>(
       type: String,
       required: false,
     },
+    follows: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Association'
+    }],
   },
   { timestamps: true }
 );

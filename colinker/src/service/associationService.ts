@@ -176,6 +176,17 @@ const getAllAsoociation = async () => {
   }
 };
 
+const getFollowedAssociations = async (username: string) => {
+  try {
+    const response = await api.get(`association/followed/${username}`);
+    if (response.data) {
+      return response.data;
+    }
+  } catch (error) {
+    throw new Error("get followed associations failed");
+  }
+}
+
 const getAssociationWithName = async (name) => {
   try {
     const response = await api.get(`/association/getAsoociationWithName/${name}`);
@@ -223,4 +234,4 @@ export const getUserRole = async (associationId,userId) => {
 
 
 
-export { getAssociationWithName, getAllAsoociation, postAssociation, createDashboardAssociation, getUserAdminAssociation, getUserAssociation, getMembersNotInAssociation,getAssociationMembers, addUserToAssociation, removeUser, editUserInAssociation, getAssociationFiles, deleteAssociationFile, downloadAssociationFile, uploadAssociationFile, uploadAssociationImage, createAssociationDirectory };
+export { getAssociationWithName, getAllAsoociation, postAssociation, createDashboardAssociation, getUserAdminAssociation, getUserAssociation, getMembersNotInAssociation,getAssociationMembers, addUserToAssociation, removeUser, editUserInAssociation, getAssociationFiles, deleteAssociationFile, downloadAssociationFile, uploadAssociationFile, uploadAssociationImage, createAssociationDirectory, getFollowedAssociations };

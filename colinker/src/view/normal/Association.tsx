@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Button, Row, Col, Typography, Image, message, Card } from "antd";
-import { HeartOutlined, DollarCircleOutlined } from "@ant-design/icons";
+import { HeartFilled, HeartOutlined, DollarCircleOutlined } from "@ant-design/icons";
 import { getAssociationWithName } from "../../service/associationService";
+import { checkFollowing, followAssociation } from "../../service/userService";
 import { getActivitiesByAssociationId } from "../../service/activitiesService";
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
@@ -40,10 +41,20 @@ const AssociationPage = () => {
   const { name } = useParams();
   const [association, setAssociation] = useState<Association | null>(null);
   const [activities, setActivities] = useState<Activities[]>([]);
+  const [followed, setFollowed] = useState(false);
 
   useEffect(() => {
-    fetchAssociation();
+    const fetchData = async () => {
+      await fetchAssociation();
+    };
+    fetchData();
   }, [name]);
+
+  useEffect(() => {
+    if (association) {
+      checkFollowed();
+    }
+  }, [association]);
 
   const handleDonationNavigation = () => {
     if (association) {
@@ -68,6 +79,26 @@ const AssociationPage = () => {
       }
     }
   };
+
+  const handleFollow = async () => {
+    const username = localStorage.getItem('username');
+    if (username && association) {
+      try {
+        const response = await followAssociation(username, association._id);
+        if (response) setFollowed(!followed);
+      } catch (error) {
+        message.error("Une erreur est survenue sur la fonction de Suivi")
+      }
+    }
+  };
+
+  const checkFollowed = async () => {
+    const username = localStorage.getItem('username');
+    if (username && association) {
+      const response = await checkFollowing(username, association._id);
+      setFollowed(response);
+    }
+  }
 
   if (!association) {
     return (
@@ -103,7 +134,7 @@ const AssociationPage = () => {
             </Button>
           </Col>
           <Col>
-            <Button type="default" icon={<HeartOutlined />} size="large">
+            <Button onClick={handleFollow} type="default" icon={followed ? <HeartFilled /> : <HeartOutlined />} size="large">
               Suivre
             </Button>
           </Col>
