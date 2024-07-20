@@ -93,6 +93,7 @@ function MainContent({ isAdminMode }) {
 function App() {
   const location = useLocation();
   const [isAdminMode, setIsAdminMode] = useState(false);
+  const isLoginPage = location.pathname === '/login';
 
   const changeAdminMode = () => {
     setIsAdminMode(!isAdminMode);
@@ -111,14 +112,16 @@ function App() {
     localStorage.setItem('isAdminMode', JSON.stringify(isAdminMode));
   }, [isAdminMode]);
 
+  if (isLoginPage) {
+    return (
+      <Content>
+        <AuthPage />
+      </Content>
+    );
+  }
+
   return (
     <AssociationProvider>
-      <Content>
-       <Routes>
-        <Route path="/login" element={<AuthPage />} />
-       </Routes>
-      </Content>
-
         <Layout style={{ minHeight: "100vh" }}>
           <AppHeader
             title="CoLinker"
