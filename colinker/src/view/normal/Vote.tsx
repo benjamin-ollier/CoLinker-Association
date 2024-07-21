@@ -66,7 +66,6 @@ const Vote = () => {
   const onSubmitVote = async () => {
     setLoading(true);
     try {
-      console.log(id,selectedOption)
       if(id && selectedOption){
         const response = await submitVote(id, selectedOption);
         console.log("id et selectedoption")

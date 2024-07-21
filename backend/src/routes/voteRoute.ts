@@ -4,7 +4,7 @@ import mongoose from 'mongoose';
 import Vote, {IOption, IVote} from '../entities/vote';
 import { Types } from 'mongoose';
 import {IUser } from '../entities/user'
-import { verifyToken, verifyUserBlock } from '../middlewares/authenticate';
+import { verifyToken } from '../middlewares/authenticate';
 import AssembleeGenerale from '../entities/assembleeGenerale';
 
 const router = express.Router();
@@ -33,7 +33,7 @@ router.get('/', verifyToken,async (req: Request, res: Response, next: NextFuncti
 
 
 // POST create a new vote
-router.post('/:associationId',verifyToken,verifyUserBlock, async (req: Request, res: Response, next: NextFunction) => {
+router.post('/:associationId',verifyToken, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { associationId } = req.params;
     const { ag, ...rest } = req.body;
@@ -74,7 +74,7 @@ router.get('/:id', verifyToken, async (req: Request, res: Response, next: NextFu
 
 
 // PUT update a vote
-router.put('/:id',verifyUserBlock,verifyToken, async (req: Request, res: Response, next: NextFunction) => {
+router.put('/:id',verifyToken, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
     const vote = await Vote.findByIdAndUpdate(id, req.body, { new: true });
@@ -88,7 +88,7 @@ router.put('/:id',verifyUserBlock,verifyToken, async (req: Request, res: Respons
 });
 
 // DELETE a vote
-router.delete('/:id',verifyToken,verifyUserBlock, async (req: Request, res: Response, next: NextFunction) => {
+router.delete('/:id',verifyToken, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
     const vote = await Vote.findByIdAndDelete(id);
@@ -102,7 +102,7 @@ router.delete('/:id',verifyToken,verifyUserBlock, async (req: Request, res: Resp
 });
 
 
-router.post('/submitVote/:voteId', verifyToken, verifyUserBlock, async (req: Request, res: Response, next: NextFunction) => {
+router.post('/submitVote/:voteId', verifyToken, async (req: Request, res: Response, next: NextFunction) => {
   const { voteId } = req.params;
   const { optionId } = req.body;
   const voterId = (req as any).user._id;
