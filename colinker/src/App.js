@@ -28,6 +28,8 @@ import { useAssociation } from './context/AssociationContext';
 import NotSelectedAssociation from "./component/admin/notSelectedAssociation";
 import Cotisation from "./view/admin/Cotisation";
 import ActivityDetails from "./view/normal/ActivityDetails";
+import Assemblee from "./view/normal/Assemblee";
+import AssembleeInfo from "./view/normal/AssembleeInfo";
 import { useLocation } from 'react-router-dom';
 
 const { Header, Sider, Content } = Layout;
@@ -44,7 +46,9 @@ function MainContent({ isAdminMode }) {
     <Route key="votes" path="/votes" element={<VoteList />} />,
     <Route key="vote" path="/vote/:id" element={<Vote />} />,
     <Route key="setting" path="/Réglage" element={<Setting />} />,
-    <Route key="activityDetails" path="/activityDetails/:name/:id" element={<ActivityDetails />} />
+    <Route key="activityDetails" path="/activityDetails/:name/:id" element={<ActivityDetails />} />,
+    <Route key="assemblee" path="/ag" element={<Assemblee />} />,
+    <Route key="assembleeInfo" path="/ag/:id" element={<AssembleeInfo />} />
   ];
 
   const adminRoutes = [

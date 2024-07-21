@@ -31,7 +31,7 @@ const optionSchema = new mongoose.Schema<IOption>({
   votants: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
 }, { _id: true });
 
-const voteSchema = new mongoose.Schema<IVote>({
+export const voteSchema = new mongoose.Schema<IVote>({
   associationId: {
     type: mongoose.Schema.Types.ObjectId, ref: 'Association', required: true
   },

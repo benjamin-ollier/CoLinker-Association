@@ -52,8 +52,12 @@ export const submitVote = async (voteId: string, optionId: string) => {
 };
 
 export const deleteVote = async (voteId: string) => {
-  const response = await api.delete(`/vote/${voteId}`);
-  return response.data;
+  try {
+    const response = await api.delete(`/vote/${voteId}`);
+    return response.data;
+  } catch (error) {
+    throw new Error("Failed to update vote");
+  }
 };
 
 export { getVotesByAssociationId, createVote, getVoteById, updateVote };

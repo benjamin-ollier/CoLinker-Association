@@ -48,6 +48,8 @@ router.post('/:associationId',verifyToken, async (req: Request, res: Response, n
       startDate: foundAg.dateStart.toISOString(),
       endDate: foundAg.dateEnd.toISOString(),
     });
+    foundAg.votes.push(newVote);
+    await foundAg.save();
     await newVote.save();
     res.status(201).json({ message: 'Vote créé avec succès', vote: newVote });
   } catch (error) {
@@ -222,21 +224,6 @@ const hasUserVoted = (vote: IVote, options: string, userId: string): boolean => 
 
   return optionList.some(option => option.votants.some(voterId => voterId.equals(userObjectId)));
 };
-
-router.delete('/:id', async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const { id } = req.params;
-    const vote = await Vote.findByIdAndDelete(id);
-    if (!vote) {
-      return res.status(404).json({ message: 'Vote non trouvé' });
-    }
-    res.json({ message: 'Vote supprimé avec succès' });
-  } catch (error) {
-    console.error('Error deleting vote:', error);
-    res.status(500).json({ error: 'Erreur serveur lors de la suppression du vote' });
-    next(error);
-  }
-});
 
 
 

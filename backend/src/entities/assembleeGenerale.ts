@@ -1,12 +1,5 @@
 import mongoose, { Document } from 'mongoose';
-
-interface IVote extends Document {
-  titre: string;
-  description: string;
-  dateDebut: Date;
-  dateFin: Date;
-  options: IOption[];
-}
+import { IVote, voteSchema } from './vote';
 
 interface IOption extends Document {
   texte: string;
@@ -37,14 +30,6 @@ const optionSchema = new mongoose.Schema<IOption>({
   texte: { type: String, required: true },
   votants: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
 }, { _id: true });
-
-const voteSchema = new mongoose.Schema<IVote>({
-  titre: { type: String, required: true },
-  description: { type: String, required: true },
-  dateDebut: { type: Date, required: false },
-  dateFin: { type: Date, required: false },
-  options: [optionSchema]
-}, { timestamps: true });
 
 const assembleeGeneraleSchema = new mongoose.Schema<IAssembleeGenerale>({
   associationId:{ 
