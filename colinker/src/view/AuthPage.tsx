@@ -17,11 +17,16 @@ const AuthPage = () => {
        }}>
   </div>
   <div className="w-2/5 flex justify-center items-center bg-white">
-    {isLoginView ? (
-      <LoginForm onRegisterClick={() => setIsLoginView(false)} />
-    ) : (
-      <RegisterForm onLoginClick={() => setIsLoginView(true)} />
-    )}
+    <div className="absolute top-40 w-full text-center p-4">
+      <h1 className='font-bold text-3xl font-sans'>COLINKER</h1>
+    </div>
+    <div className="mt-20 w-80">
+      {isLoginView ? (
+        <LoginForm onRegisterClick={() => setIsLoginView(false)} />
+      ) : (
+        <RegisterForm onLoginClick={() => setIsLoginView(true)} />
+      )}
+    </div>
   </div>
 </div>
 
