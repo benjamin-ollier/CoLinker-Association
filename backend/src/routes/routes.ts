@@ -17,6 +17,7 @@ const router = express.Router();
 
 router.use('/auth', authRoutes);
 router.use('/plugins', pluginsRoutes);
+router.use('/notes', notesRoutes);
 
 router.use(verifyToken);
 
@@ -28,7 +29,6 @@ router.use('/tasks', tasksRoutes);
 router.use('/paypalApiRoute', paypalApiRoute);
 router.use('/donation', donationRoute);
 router.use('/taskRooms', taskRoomsRoutes);
-router.use('/notes', notesRoutes);
 router.use('/activities', activitiesRoutes);
 router.use('/vote', voteRoute);
 
