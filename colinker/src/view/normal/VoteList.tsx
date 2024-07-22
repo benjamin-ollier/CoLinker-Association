@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { getAllVote } from '../../service/voteService';
 import { Button, Input, Table, Tag, Space } from 'antd';
 import { PlusOutlined, SearchOutlined } from '@ant-design/icons';
+import { format, parseISO } from 'date-fns';
 
 const VoteList = () => {
   const navigate = useNavigate();
@@ -63,11 +64,17 @@ const VoteList = () => {
       title: 'Date de début',
       dataIndex: 'startDate',
       key: 'startDate',
+      render: (dateStart: string) => {
+        return dateStart ? format(parseISO(dateStart), 'dd/MM/yyyy HH:mm') : 'Date invalide';
+      }
     },
     {
       title: 'Date de fin',
       dataIndex: 'endDate',
       key: 'endDate',
+      render: (endDate: string) => {
+        return endDate ? format(parseISO(endDate), 'dd/MM/yyyy HH:mm') : 'Date invalide';
+      }
     },
     {
       title: 'Action',

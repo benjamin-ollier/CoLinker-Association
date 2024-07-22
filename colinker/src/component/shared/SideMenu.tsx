@@ -7,7 +7,12 @@ import {
   UserOutlined,
   AuditOutlined,
   FolderOutlined,
-  DollarOutlined
+  DollarOutlined,
+  HomeOutlined,
+  AppstoreOutlined,
+  ProfileOutlined,
+  UsergroupAddOutlined,
+  CalendarOutlined
 } from '@ant-design/icons';
 
 const { Sider } = Layout;
@@ -18,16 +23,16 @@ const SideMenu = ({ isAdminMode }) => {
   const menuItems = [
     ...(isAdminMode ? [
       { label: "Dashboard", key: "/admin/dashboard", icon: <DesktopOutlined /> },
-      { label: "Gestion des activités", key: "/admin/activities", icon: <UserOutlined /> },
-      { label: "Gestion des membres", key: "/admin/userManagement", icon: <UserOutlined /> },
+      { label: "Gestion des activités", key: "/admin/activities", icon: <CalendarOutlined /> },
+      { label: "Gestion des membres", key: "/admin/userManagement", icon: <UsergroupAddOutlined /> },
       { label: "Assemblée Générale", key: "/admin/ag", icon: <AuditOutlined /> },
-      { label: "Gestion des votes", key: "/admin/vote", icon: <PieChartOutlined /> },
+      { label: "Gestion des votes", key: "/admin/vote", icon: <ProfileOutlined /> },
       { label: "Gestion des fichiers", key: "/admin/files", icon: <FolderOutlined />},
       { label: "Cotisations", key: "/admin/cotisation", icon: <DollarOutlined />}
     ] : [
-      { label: "Home", key: "/home", icon: <DesktopOutlined /> },
-      { label: "Mes Associations", key: "/myAssociation", icon: <PieChartOutlined /> },
-      { label: "Vote", key: "/votes", icon: <UserOutlined /> },
+      { label: "Home", key: "/home", icon: <HomeOutlined /> },
+      { label: "Mes Associations", key: "/myAssociation", icon: <AppstoreOutlined /> },
+      { label: "Vote", key: "/votes", icon: <ProfileOutlined /> },
       { label: "Assemblée Générale", key: "/ag", icon: <AuditOutlined /> }
     ])
   ];

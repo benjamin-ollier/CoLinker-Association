@@ -10,12 +10,7 @@ dotenv.config();
 const app = express();
 const PORT: string | number = process.env.BackendPORT || 8000;
 
-const serviceAccount = require('../pa-esgi-firebase-adminsdk-rxfgl-d294953297.json');
 
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  storageBucket: 'nodejs-cinema.appspot.com'
-});
 connectDB();
 
 app.use(cors());

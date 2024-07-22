@@ -98,7 +98,7 @@ const AppHeader: React.FC<AppHeaderProps & {onAdminClick: () => void}> = ({ titl
   return (
     <Header style={{ ...headerStyle, justifyContent: 'space-between' }}>
       <div style={logoStyle}>
-        <img src={logoSrc} alt="Logo" style={logoImageStyle} />
+        <img className="mt-3" src={logoSrc} alt="Logo" style={logoImageStyle} />
         {displayTitle}
       </div>
       <div className="flex items-center space-x-4">
