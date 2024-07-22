@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Input, Table, Tag, Space } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
-import { getByAssociationID } from '../../service/agService';
+import { getAllAG } from '../../service/agService';
 import { format, parseISO } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { useAssociation } from '../../context/AssociationContext';
@@ -18,24 +18,19 @@ interface AssembleeGeneraleData {
 
 const Assemblee: React.FC = () => {
   const navigate = useNavigate();
-  const { selectedAssociationId } = useAssociation();
   const [data, setData] = useState<AssembleeGeneraleData[]>([]);
 
   useEffect(() => {
-    if (selectedAssociationId) {
-      fetchData();
-    }
-  }, [selectedAssociationId]);
+    fetchData();
+  }, []);
 
 
   const fetchData = async () => {
-    if(selectedAssociationId){
-        try {
-          const response = await getByAssociationID(selectedAssociationId as string);
-          setData(response.map((ag: any) => ({ ...ag, key: ag._id })));
-        } catch (error) {
-          console.error('Erreur lors du chargement des AGs:', error);
-        }
+    try {
+      const response = await getAllAG();
+      setData(response.map((ag: any) => ({ ...ag, key: ag._id })));
+    } catch (error) {
+      console.error('Erreur lors du chargement des AGs:', error);
     }
   };
   const columns = [

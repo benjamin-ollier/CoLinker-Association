@@ -72,7 +72,6 @@ const AssociationPage = () => {
             data[0]._id
           );
           setActivities(activitiesData);
-          console.log("activités", activitiesData);
         }
       } catch (error) {
         message.error("Failed to fetch associations: ");

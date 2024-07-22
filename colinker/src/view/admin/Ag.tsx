@@ -41,12 +41,12 @@ const Ag: React.FC = () => {
   };
   const columns = [
     {
-      title: 'title',
+      title: 'Titre',
       dataIndex: 'title',
       key: 'title',
     },
     {
-      title: 'location',
+      title: 'Localisation',
       dataIndex: 'location',
       key: 'location',
     },

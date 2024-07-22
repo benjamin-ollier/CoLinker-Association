@@ -15,12 +15,12 @@ const VoteList = () => {
     const fetchData = async () => {
       try {
         let response;
-        console.log(associationName)
         if (associationName) {
           response = await getAllVote(associationName);
         }else{
           response = await getAllVote();
         }
+        
         const votesData = response || [];
         const mappedVotes = votesData.map((vote) => ({
           key: vote._id,

@@ -22,7 +22,26 @@ router.get('/byAssociation/:associationId',verifyToken,  async (req: Request, re
 
 router.get('/', verifyToken, async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const votes = await Vote.find({})
+    const userId = (req as any).user._id
+
+    const associations = await Association.find({ "member.user": userId })
+      .populate('member.user', 'username isBlocked');
+
+    if (associations.length === 0) {
+      return res.status(204).json({ message: "Aucune association trouvée pour cet utilisateur." });
+    }
+
+    const validAssociations = associations.filter(association => {
+      return association.member.some(member => member.user._id.equals(userId) && !member.isBlocked);
+    });
+
+    if (validAssociations.length === 0) {
+      return res.status(204).json({ message: "Aucune association valide trouvée pour cet utilisateur." });
+    }
+
+    const validAssociationIds = validAssociations.map(association => association._id);
+
+    const votes = await Vote.find({ associationId: { $in: validAssociationIds } })
       .populate({
         path: 'associationId',
         select: 'name'
@@ -37,8 +56,6 @@ router.get('/', verifyToken, async (req: Request, res: Response, next: NextFunct
       associationName: (vote.associationId as any).name
     }));
 
-    
-
     res.json(results);
   } catch (error) {
     next(error);
@@ -48,13 +65,31 @@ router.get('/', verifyToken, async (req: Request, res: Response, next: NextFunct
 
 
 
+
 router.get('/byAssociationName/:associationName', verifyToken, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { associationName } = req.params;
+    const userId = (req as any).user._id
 
-    const association = await Association.findOne({ name: associationName });
+    const associations = await Association.find({ "member.user": userId })
+      .populate('member.user', 'username isBlocked');
+
+    if (associations.length === 0) {
+      return res.status(204).json({ message: "Aucune association trouvée pour cet utilisateur." });
+    }
+
+    const validAssociations = associations.filter(association => {
+      return association.member.some(member => member.user._id.equals(userId) && !member.isBlocked);
+    });
+
+    if (validAssociations.length === 0) {
+      return res.status(204).json({ message: "Aucune association valide trouvée pour cet utilisateur." });
+    }
+
+    const association = validAssociations.find(a => a.name === associationName);
+
     if (!association) {
-      return res.status(404).json({ message: 'Association non trouvée' });
+      return res.status(204).json({ message: 'Association non trouvée ou non valide pour cet utilisateur' });
     }
 
     const votes = await Vote.find({ associationId: association._id }).populate('associationId');
@@ -73,6 +108,7 @@ router.get('/byAssociationName/:associationName', verifyToken, async (req: Reque
     next(error);
   }
 });
+
 
 
 // POST create a new vote

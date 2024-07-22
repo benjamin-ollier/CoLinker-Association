@@ -2,6 +2,7 @@ import express, { Request, Response, NextFunction } from 'express';
 import AssembleeGenerale from '../entities/assembleeGenerale';
 import IAssembleeGenerale from '../entities/assembleeGenerale';
 import Association from '../entities/association';
+import { verifyToken } from '../middlewares/authenticate';
 
 const router = express.Router();
 
@@ -70,9 +71,29 @@ router.get('/byAssociation/:associationId', async (req: Request, res: Response, 
   }
 });
 
-router.get('/', async (req: Request, res: Response, next: NextFunction) => {
+router.get('/', verifyToken, async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const assembleesGenerales = await AssembleeGenerale.find();
+    const userId = (req as any).user._id
+
+    const associations = await Association.find({ "member.user": userId })
+      .populate('member.user', 'username isBlocked');
+
+    if (associations.length === 0) {
+      return res.status(204).json({ message: "Aucune association trouvée pour cet utilisateur." });
+    }
+
+    const validAssociations = associations.filter(association => {
+      return association.member.some(member => member.user._id.equals(userId) && !member.isBlocked);
+    });
+
+    if (validAssociations.length === 0) {
+      return res.status(204).json({ message: "Aucune association valide trouvée pour cet utilisateur." });
+    }
+
+    const validAssociationIds = validAssociations.map(association => association._id);
+
+    const assembleesGenerales = await AssembleeGenerale.find({ associationId: { $in: validAssociationIds } });
+
     assembleesGenerales.forEach(ag => determineStatus(ag));
 
     res.json(assembleesGenerales);
@@ -80,6 +101,7 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
     next(error);
   }
 });
+
 
 router.put('/update/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {

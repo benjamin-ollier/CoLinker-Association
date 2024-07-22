@@ -31,8 +31,8 @@ const Votes = () => {
   const columns = [
     {
       title: 'Titre',
-      dataIndex: 'titre',
-      key: 'titre',
+      dataIndex: 'title',
+      key: 'title',
     },
     {
       title: 'Question',
