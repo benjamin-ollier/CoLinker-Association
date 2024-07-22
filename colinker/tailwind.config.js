@@ -8,7 +8,9 @@ module.exports = {
       'blue': '#F8F9FB',
       'bermuda': '#78dcca',
       'red': '#FA5252',
-      'white': '#FFFFFF'
+      'white': '#FFF',
+      'gray': '#EEE',
+      'black': '#000'
     },
     extend: {
     },
