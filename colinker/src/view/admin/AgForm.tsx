@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Input, Select, DatePicker, Button, Divider } from 'antd';
-import { PlusOutlined, LeftOutlined, MinusCircleOutlined } from '@ant-design/icons';
+import { Form, Input, Select, DatePicker, Button, Divider,message } from 'antd';
+import { PlusOutlined, LeftOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useParams } from 'react-router-dom';
-import { getAGById, createAG, updateAG } from '../../service/agService';
+import { getAGById, createAG, updateAG,deleteAg } from '../../service/agService';
 import moment from 'moment';
 import { useNavigate } from 'react-router-dom';
 import { useAssociation } from '../../context/AssociationContext';
@@ -74,6 +74,17 @@ const AgForm: React.FC = () => {
     navigate(`/admin/ag`);
   }
 
+  const handleDeleteVote = async () => {
+    try {
+      if(id){
+        await deleteAg(id);
+        navigate('/admin/vote');
+      }
+    } catch (error) {
+      message.error("Erreur lors de la suppression du vote");
+    }
+  }
+
 
   return (
     <div>
@@ -116,6 +127,9 @@ const AgForm: React.FC = () => {
       </Form.Item>
 
       <div className="flex justify-end">
+        <Button className='mr-2' type="primary" danger onClick={handleDeleteVote} icon={<DeleteOutlined />}>
+            Supprimer
+        </Button>
         <Button type="primary" htmlType="submit" icon={<PlusOutlined />}>{isNew ? 'Créer' : 'Mettre à jour'}</Button>
       </div>
     </Form>

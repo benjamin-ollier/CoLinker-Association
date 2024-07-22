@@ -3,6 +3,7 @@ import AssembleeGenerale from '../entities/assembleeGenerale';
 import IAssembleeGenerale from '../entities/assembleeGenerale';
 import Association from '../entities/association';
 import { verifyToken } from '../middlewares/authenticate';
+import Vote, {IOption, IVote} from '../entities/vote';
 
 const router = express.Router();
 
@@ -60,7 +61,7 @@ router.get('/byAssociation/:associationId', async (req: Request, res: Response, 
     const assembleesGenerales = await AssembleeGenerale.find({ associationId: associationId });
 
     if (!assembleesGenerales.length) {
-      return res.status(404).json({ message: 'Aucune assemblée générale trouvée pour cette association.' });
+      return res.status(203).json({ message: 'Aucune assemblée générale trouvée pour cette association.' });
     }
 
     assembleesGenerales.forEach(ag => determineStatus(ag));
@@ -167,6 +168,25 @@ function determineStatus(ag: any): void {
   }
 }
 
+router.delete('/:id', verifyToken, async (req: Request, res: Response, next: NextFunction) => {
+
+  try {
+    const { id } = req.params;
+
+    // Supprimer les votes associés à l'Assemblée Générale
+    await Vote.deleteMany({ ag: id });
+
+    // Supprimer l'Assemblée Générale
+    const ag = await AssembleeGenerale.findByIdAndDelete(id);
+    if (!ag) {
+      return res.status(404).json({ message: 'Assemblée générale non trouvée' });
+    }
+
+    res.json({ message: 'Assemblée générale et tous les votes associés supprimés avec succès' });
+  } catch (error) {
+    next(error);
+  }
+});
 
 
 export default router;

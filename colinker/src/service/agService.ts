@@ -70,4 +70,13 @@ const getByAssociationID = async (id: string) => {
   }
 };
 
+export const deleteAg = async (agId: string) => {
+  try {
+    const response = await api.delete(`/ag/${agId}`);
+    return response.data;
+  } catch (error) {
+    throw new Error("Failed to update vote");
+  }
+};
+
 export { getAllAG, getAGById, createAG, updateAG,getByAssociationID };
