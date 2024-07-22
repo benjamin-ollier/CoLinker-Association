@@ -6,6 +6,7 @@ import { Types } from 'mongoose';
 import {IUser } from '../entities/user'
 import { verifyToken } from '../middlewares/authenticate';
 import AssembleeGenerale from '../entities/assembleeGenerale';
+import Association, { IAssociation } from '../entities/association';
 
 const router = express.Router();
 
@@ -19,13 +20,55 @@ router.get('/byAssociation/:associationId',verifyToken,  async (req: Request, re
   }
 });
 
-router.get('/', verifyToken,async (req: Request, res: Response, next: NextFunction) => {
+router.get('/', verifyToken, async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const votes = await Vote.find({});
+    const votes = await Vote.find({})
+      .populate({
+        path: 'associationId',
+        select: 'name'
+      });
+
     for (let vote of votes) {
-      await processVoteResults(vote);
+      await processVoteResults(vote as any);
     }
-    res.json(votes);
+
+    const results = votes.map(vote => ({
+      ...vote.toObject(),
+      associationName: (vote.associationId as any).name
+    }));
+
+    
+
+    res.json(results);
+  } catch (error) {
+    next(error);
+  }
+});
+
+
+
+
+router.get('/byAssociationName/:associationName', verifyToken, async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { associationName } = req.params;
+
+    const association = await Association.findOne({ name: associationName });
+    if (!association) {
+      return res.status(404).json({ message: 'Association non trouvée' });
+    }
+
+    const votes = await Vote.find({ associationId: association._id }).populate('associationId');
+
+    for (let vote of votes) {
+      await processVoteResults(vote as any);
+    }
+
+    const votesWithAssociationName = votes.map(vote => ({
+      ...vote.toObject(),
+      associationName: association.name
+    }));
+
+    res.json(votesWithAssociationName);
   } catch (error) {
     next(error);
   }

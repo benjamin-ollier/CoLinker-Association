@@ -105,7 +105,13 @@ const VoteForm = () => {
         Retour
       </Button>
       <Divider>Informations sur le vote</Divider>
-      <Form form={form} layout="vertical" onFinish={handleSaveData}>
+      <Form form={form} 
+            layout="vertical" 
+            onFinish={handleSaveData}
+            initialValues={{
+              doubleStep: false
+            }}
+            >
       <Form.Item
           name="ag"
           label="Selectionner une assemblée générale"

@@ -41,8 +41,14 @@ export const getVote = async (voteId: string) => {
   return response.data;
 };
 
-export const getAllVote = async () => {
-  const response = await api.get(`/vote`);
+export const getAllVote = async (associationName?:string) => {
+  let response;
+  if(associationName){
+    response = await api.get(`/vote/byAssociationName/${associationName}`)
+  }
+  else{ 
+    response = await api.get(`/vote`);
+  }
   return response.data;
 };
 

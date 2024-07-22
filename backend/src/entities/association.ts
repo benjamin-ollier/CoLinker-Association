@@ -11,6 +11,7 @@ interface IWidget {
 }
 
 export interface IAssociation extends Document {
+  _id: Types.ObjectId;
   name: string;
   siret: string;
   informationDescription: string;

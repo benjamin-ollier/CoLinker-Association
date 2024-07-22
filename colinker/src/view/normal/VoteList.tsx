@@ -4,16 +4,23 @@ import { getAllVote } from '../../service/voteService';
 import { Button, Input, Table, Tag, Space } from 'antd';
 import { PlusOutlined, SearchOutlined } from '@ant-design/icons';
 import { format, parseISO } from 'date-fns';
+import { useParams } from 'react-router-dom';
 
 const VoteList = () => {
   const navigate = useNavigate();
   const [votes, setVotes] = useState([]);
+  const { associationName } = useParams<{ associationName?: string }>();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await getAllVote();
-
+        let response;
+        console.log(associationName)
+        if (associationName) {
+          response = await getAllVote(associationName);
+        }else{
+          response = await getAllVote();
+        }
         const votesData = response || [];
         const mappedVotes = votesData.map((vote) => ({
           key: vote._id,
@@ -22,7 +29,9 @@ const VoteList = () => {
           startDate: vote.startDate,
           endDate: vote.endDate,
           completed: vote.completed,
+          associationName: vote.associationName,
         }));
+        
 
         setVotes(mappedVotes);
       } catch (error) {
@@ -30,10 +39,7 @@ const VoteList = () => {
       }
     };
     fetchData();
-  }, []);
-
-  useEffect(() => {
-  }, [votes]);
+  }, [associationName]);
 
   const columns = [
     {
@@ -46,9 +52,9 @@ const VoteList = () => {
       },
     },
     {
-      title: 'Type',
-      dataIndex: 'type',
-      key: 'type',
+      title: 'Association',
+      dataIndex: 'associationName',
+      key: 'associationName',
     },
     {
       title: 'Titre',

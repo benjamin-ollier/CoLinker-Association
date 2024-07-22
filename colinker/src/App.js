@@ -43,7 +43,7 @@ function MainContent({ isAdminMode }) {
     <Route key="myAssociation" path="/myAssociation" element={<MyAssociation />} />,
     <Route key="association" path="/association/:name" element={<AssociationPage />} />,
     <Route key="donation" path="/donation/:name" element={<Donation />} />,
-    <Route key="votes" path="/votes" element={<VoteList />} />,
+    <Route key="votes" path="/votes/:associationName?" element={<VoteList />} />,
     <Route key="vote" path="/vote/:id" element={<Vote />} />,
     <Route key="setting" path="/Réglage" element={<Setting />} />,
     <Route key="activityDetails" path="/activityDetails/:name/:id" element={<ActivityDetails />} />,

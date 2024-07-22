@@ -92,6 +92,12 @@ const AssociationPage = () => {
     }
   };
 
+  const handleVotes = async () => {
+    if (association) {
+      navigate(`/votes/${association.name}`);
+    }
+  }
+
   const checkFollowed = async () => {
     const username = localStorage.getItem('username');
     if (username && association) {
@@ -139,7 +145,7 @@ const AssociationPage = () => {
             </Button>
           </Col>
           <Col>
-            <Button type="default" size="large">
+            <Button onClick={handleVotes} type="default" size="large">
               Votes
             </Button>
           </Col>
