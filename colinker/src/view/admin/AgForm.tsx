@@ -56,21 +56,25 @@ const AgForm: React.FC = () => {
       dateStart: values.dateStart ? values.dateStart.toISOString() : null,
       dateEnd: values.dateEnd ? values.dateEnd.toISOString() : null,
     };
-    
-    if (isNew) {
-      const res=await createAG(dataToSubmit, selectedAssociationId as String);
-      if(res.success) {
-        navigate(`/admin/ag`);
-      }else {
-        message.error(res.message || 'Une erreur est survenue lors de l\'enregistrement');
+    try {
+      let res;
+      if (isNew) {
+        res = await createAG(dataToSubmit, selectedAssociationId as String);
+      } else {
+        res = await updateAG(dataToSubmit, id || '');
       }
-    } else {
-      const res=await updateAG(dataToSubmit, id || '');
-      if(res.status == '200' || res.status == '201') {
+
+      if (res?.status === 200 || res?.status === 201 || res?.status === 204) {
+        message.success('Enregistrement réussi');
         navigate(`/admin/ag`);
-      }else {
-        message.error(res.message || 'Une erreur est survenue lors de l\'enregistrement');
+      } else if (res?.status === 400) {
+        message.error(res.data.message || 'Une erreur est survenue lors de l\'enregistrement');
+      } else {
+        message.error('Erreur inconnue');
       }
+    } catch (error) {
+      message.error('Erreur lors de la sauvegarde des données');
+      console.error(error);
     }
   };
 

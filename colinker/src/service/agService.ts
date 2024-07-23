@@ -47,7 +47,7 @@ const getAGById = async (id: string) => {
 const createAG = async (agData: AGCreateData, selectedAssociationId: String) => {
   try {
     const response = await api.post(`/ag/${selectedAssociationId}`, agData);
-    return response.data;
+    return response;
   } catch (error) {
     throw new Error("Failed to create AG");
   }
@@ -56,7 +56,7 @@ const createAG = async (agData: AGCreateData, selectedAssociationId: String) => 
 const updateAG = async (agData: AGCreateData, id:string) => {
   try {
     const response = await api.put(`ag/update/${id}`,agData);
-    return response.data;
+    return response;
   } catch (error) {
     throw new Error("Failed to update AG");
   }
