@@ -93,8 +93,16 @@ const VoteList = () => {
 
   return (
     <div>
-    <Table className='mx-14 mt-8' dataSource={votes} columns={columns} />
-  </div>
+      {associationName ? (
+              <h1 className='mx-14 mt-8 font-bold font-sans'>
+                Votes de l'association : {associationName}
+              </h1>
+            ) : (
+              <h1 className='mx-14 mt-8 font-bold font-sans'>
+                Voici tous vos votes :
+              </h1>
+            )}      <Table className='mx-14 mt-8' dataSource={votes} columns={columns} />
+    </div>
   );
 };
 

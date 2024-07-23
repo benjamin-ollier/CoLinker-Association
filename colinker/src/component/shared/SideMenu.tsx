@@ -31,7 +31,7 @@ const SideMenu = ({ isAdminMode }) => {
       { label: "Cotisations", key: "/admin/cotisation", icon: <DollarOutlined />}
     ] : [
       { label: "Home", key: "/home", icon: <HomeOutlined /> },
-      { label: "Mes Associations", key: "/myAssociation", icon: <AppstoreOutlined /> },
+      { label: "Associations suivies", key: "/myAssociation", icon: <AppstoreOutlined /> },
       { label: "Vote", key: "/votes", icon: <ProfileOutlined /> },
       { label: "Assemblée Générale", key: "/ag", icon: <AuditOutlined /> }
     ])
