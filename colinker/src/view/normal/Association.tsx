@@ -119,7 +119,6 @@ const AssociationPage = () => {
       <div
         className="w-full h-80 flex justify-center items-center overflow-hidden"
         style={{
-          padding: "10px 0",
           backgroundPosition: "center",
           backgroundSize: "cover",
           backgroundImage: `url("https://projet-ecole-ong.s3.eu-west-3.amazonaws.com/images/${association._id}/${association.image}")`
