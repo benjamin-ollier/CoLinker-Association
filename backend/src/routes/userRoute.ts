@@ -67,7 +67,7 @@ router.get('/notifications/:username', async (req: Request, res: Response, next:
     if (associations) {
       const associationIds = associations.map(asso => asso._id);
       const votes = await Vote.find({associationId: {$in: associationIds}}).exec();
-      votes.some(vote => now >= vote.startDate && now <= vote.endDate) && notifications.push({
+      votes.some(vote => now >= vote.startDate && now <= vote.endDate && !vote.completed) && notifications.push({
         message: "Vous avez un ou plusieurs votes en cours."
       });
     }
