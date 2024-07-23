@@ -185,7 +185,7 @@ router.post('/addMember/:associationId',verifyUserBlock,verifyToken, async (req,
   }
 });
 
-router.get('/associationMembers/:associationId', async (req, res, next) => {
+router.get('/associationMembers/:associationId',  async (req, res, next) => {
   try {
     const { associationId } = req.params;
     
@@ -196,13 +196,21 @@ router.get('/associationMembers/:associationId', async (req, res, next) => {
     
     const filteredMembers = association.member.filter(member => member.role !== 'Donateur');
     const memberIds = filteredMembers.map(m => m.user);
-    
-    const users = await User.find({
-      '_id': { $in: memberIds }
-    })
-    .select('-token -password')
-    
-    res.json(users);
+
+    const users = await User.find({ '_id': { $in: memberIds } })
+      .select('-token -password');
+
+    const memberBlockStatus: Record<string, boolean> = filteredMembers.reduce((acc, member) => {
+      acc[member.user.toString()] = member.isBlocked;
+      return acc;
+    }, {} as any);
+
+    const usersWithBlockStatus = users.map(user => ({
+      ...user.toObject(),
+      isBlocked: memberBlockStatus[user._id.toString()] || false 
+    }));
+
+    res.json(usersWithBlockStatus);
   } catch (error) {
     next(error);
   }

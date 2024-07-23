@@ -101,7 +101,8 @@ const VoteList = () => {
               <h1 className='mx-14 mt-8 font-bold font-sans'>
                 Voici tous vos votes :
               </h1>
-            )}      <Table className='mx-14 mt-8' dataSource={votes} columns={columns} />
+            )}      
+            <Table className='mx-14 mt-8' dataSource={votes} columns={columns} />
     </div>
   );
 };

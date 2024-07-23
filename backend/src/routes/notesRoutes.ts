@@ -77,7 +77,7 @@ router.delete('/:id', async (req: Request, res: Response, next: NextFunction) =>
     }
 
 
-    res.status(204).json({ message: 'Note supprimée avec succès' });
+    res.status(200).json({ message: 'Note supprimée avec succès' });
   } catch (error) {
       next(error);
   }

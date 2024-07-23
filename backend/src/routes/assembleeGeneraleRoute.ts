@@ -4,6 +4,7 @@ import IAssembleeGenerale from '../entities/assembleeGenerale';
 import Association from '../entities/association';
 import { verifyToken } from '../middlewares/authenticate';
 import Vote, {IOption, IVote} from '../entities/vote';
+import moment from 'moment';
 
 const router = express.Router();
 
@@ -14,6 +15,11 @@ router.post('/:associationId', async (req: Request, res: Response, next: NextFun
 
     const association = await Association.findById(associationId);
     if (!association) return res.status(404).send("Association non trouvée");
+
+    //validation dates
+    if (!moment(dateStart).isBefore(moment(dateEnd))) {
+      return res.status(400).json({ message: 'La date de début doit être antérieure à la date de fin' });
+    }
 
     const nouvelleAG = new AssembleeGenerale({
       associationId,
@@ -113,6 +119,11 @@ router.put('/update/:id', async (req: Request, res: Response, next: NextFunction
 
     if (!agToUpdate) {
       return res.status(404).json({ message: 'Assemblée générale non trouvée.' });
+    }
+
+    //validation date
+    if (!moment(dateStart).isBefore(moment(dateEnd))) {
+      return res.status(400).json({ message: 'La date de début doit être antérieure à la date de fin' });
     }
 
     agToUpdate.title = title;

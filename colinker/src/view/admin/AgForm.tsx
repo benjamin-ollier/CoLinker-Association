@@ -61,11 +61,15 @@ const AgForm: React.FC = () => {
       const res=await createAG(dataToSubmit, selectedAssociationId as String);
       if(res.success) {
         navigate(`/admin/ag`);
+      }else {
+        message.error(res.message || 'Une erreur est survenue lors de l\'enregistrement');
       }
     } else {
       const res=await updateAG(dataToSubmit, id || '');
       if(res.status == '200' || res.status == '201') {
         navigate(`/admin/ag`);
+      }else {
+        message.error(res.message || 'Une erreur est survenue lors de l\'enregistrement');
       }
     }
   };
